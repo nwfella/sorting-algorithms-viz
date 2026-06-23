@@ -52,6 +52,10 @@
   input[type="range"] { width: 80px; padding: 0; accent-color: var(--accent); }
   .speed-display { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--accent); min-width: 28px; text-align: center; }
 
+  .active-count {
+    font-size: 11px; color: var(--text-dim); font-family: 'JetBrains Mono', monospace;
+  }
+
   /* ===== SCROLLABLE GRID ===== */
   .viz-scroll-wrap {
     position: relative;
@@ -74,7 +78,6 @@
   .viz-grid::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
   .viz-grid::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
 
-  /* Scroll arrows */
   .scroll-btn {
     position: absolute; top: 50%; transform: translateY(-50%);
     width: 32px; height: 32px; border-radius: 50%;
@@ -93,24 +96,48 @@
     flex: 0 0 270px; min-width: 240px;
     background: var(--surface); border: 1px solid var(--border);
     border-radius: 10px; padding: 10px; display: flex; flex-direction: column;
-    transition: border-color .2s, box-shadow .2s;
+    transition: flex .3s ease, opacity .3s ease, border-color .2s, box-shadow .2s;
     scroll-snap-align: start;
+    opacity: 1;
   }
-  @media (min-width: 1000px) {
-    .algo-card { flex: 0 0 260px; }
+  .algo-card.inactive {
+    flex: 0 0 0 !important; min-width: 0 !important; max-width: 0 !important;
+    padding: 0; margin: 0; border: none; overflow: hidden; opacity: 0;
+    pointer-events: none;
   }
+
   @media (min-width: 1300px) {
     .viz-grid { flex-wrap: nowrap; justify-content: center; }
     .algo-card { flex: 1 1 0; min-width: 0; }
+    .algo-card.inactive { flex: 0 0 0 !important; min-width: 0 !important; }
     .scroll-btn { display: none; }
   }
 
+  /* Toggle button */
+  .algo-toggle {
+    width: 20px; height: 20px; border-radius: 50%;
+    border: 2px solid var(--border); background: transparent;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: all .2s; flex-shrink: 0; padding: 0;
+    font-size: 10px; color: transparent;
+  }
+  .algo-toggle.active {
+    border-color: inherit;
+    background: inherit;
+    box-shadow: 0 0 6px;
+  }
+  .algo-toggle.active::after {
+    content: '✓'; color: #fff; font-weight: 700; font-size: 11px;
+  }
+  .algo-toggle:hover { transform: scale(1.15); }
+
   .algo-card.running { border-color: var(--accent); box-shadow: 0 0 16px rgba(6,182,212,.1); }
   .algo-card.done { border-color: var(--green); box-shadow: 0 0 16px rgba(16,185,129,.1); }
-  .algo-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
-  .algo-name { font-size: 12px; font-weight: 700; display: flex; align-items: center; gap: 5px; }
+  .algo-header { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+  .algo-header-left { display: flex; align-items: center; gap: 5px; flex: 1; min-width: 0; }
+  .algo-name { font-size: 12px; font-weight: 700; display: flex; align-items: center; gap: 5px; white-space: nowrap; }
   .algo-name .badge { font-size: 8px; font-weight: 600; padding: 2px 5px; border-radius: 3px; background: var(--surface2); color: var(--text-dim); }
-  .algo-big-o { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text-dim); }
+  .algo-big-o { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text-dim); white-space: nowrap; margin-left: auto; }
   .algo-stats { display: flex; gap: 8px; margin-bottom: 6px; font-size: 10px; color: var(--text-dim); }
   .algo-stats span { display: flex; align-items: center; gap: 3px; }
   .algo-stats .stat-val { font-family: 'JetBrains Mono', monospace; color: var(--text); font-weight: 600; }
@@ -119,7 +146,6 @@
   .chart-area canvas { width: 100%; height: 100%; display: block; }
   .algo-color-bar { width: 6px; height: 6px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
 
-  /* Dot indicators */
   .dot-nav {
     display: flex; justify-content: center; gap: 6px;
     margin-top: 8px; margin-bottom: 4px;
@@ -130,6 +156,7 @@
   }
   .dot-nav .dot.active { background: var(--accent); width: 20px; border-radius: 4px; }
   .dot-nav .dot:hover { background: var(--text-dim); }
+  .dot-nav .dot.hidden-dot { display: none; }
 
   .legend {
     background: var(--surface); border: 1px solid var(--border);
@@ -162,6 +189,7 @@
       <span class="speed-display" id="speedDisplay">50x</span>
       <button class="btn btn-primary" id="startBtn">▶ Run</button>
       <button class="btn btn-danger" id="resetBtn">↺</button>
+      <span class="active-count" id="activeCount">5/5</span>
     </div>
   </header>
 
@@ -254,7 +282,7 @@ const ALGOS = [
   }
 ];
 const C = { compare:'#06b6d4', swap:'#ec4899', pivot:'#f59e0b', merge:'#f97316', dflt:'#334155' };
-let S = { arr:[], running:false, spd:50, sz:50, gens:[], fin:[false,false,false,false,false], tos:[], stats:ALGOS.map(()=>({cmp:0,swp:0})), t0:null, ela:[0,0,0,0,0], done:false, displayData:[] };
+let S = { arr:[], running:false, spd:50, gens:[], fin:[false,false,false,false,false], tos:[], stats:ALGOS.map(()=>({cmp:0,swp:0})), t0:null, ela:[0,0,0,0,0], done:false, active:[true,true,true,true,true] };
 
 function bc(ev) {
   const clr = new Array(S.arr.length).fill(C.dflt);
@@ -293,20 +321,64 @@ function draw(cv, data, ev) {
   }
 }
 
+function updateActiveCount() {
+  const n = S.active.filter(Boolean).length;
+  document.getElementById('activeCount').textContent = n + '/' + ALGOS.length;
+}
+function updateDotsVisibility() {
+  document.querySelectorAll('.dot').forEach((d, i) => {
+    d.classList.toggle('hidden-dot', !S.active[i]);
+  });
+}
+
+function toggleAlgo(idx) {
+  S.active[idx] = !S.active[idx];
+  const card = document.getElementById('card-'+idx);
+  const toggle = document.getElementById('tog-'+idx);
+  if (S.active[idx]) {
+    card.classList.remove('inactive');
+    toggle.classList.add('active');
+    toggle.style.borderColor = ALGOS[idx].color;
+    toggle.style.background = ALGOS[idx].color;
+  } else {
+    card.classList.add('inactive');
+    toggle.classList.remove('active');
+    toggle.style.borderColor = '';
+    toggle.style.background = '';
+  }
+  updateActiveCount();
+  updateDotsVisibility();
+  // Recalculate scroll buttons & dots
+  setTimeout(() => { updateScrollButtons(); updateDots(); }, 350);
+}
+
 function buildUI() {
   const g=document.getElementById('vizGrid'); g.innerHTML='';
   ALGOS.forEach((a,i)=>{
     const c=document.createElement('div'); c.className='algo-card'; c.id='card-'+i;
-    c.innerHTML=`<div class="algo-header"><div class="algo-name"><span class="algo-color-bar" style="background:${a.color}"></span>${a.name}<span class="badge">${a.badge}</span></div><div class="algo-big-o">${a.complexity}</div></div><div class="algo-stats"><span>cmp <span class="stat-val" id="cmp-${i}">0</span></span><span>swp <span class="stat-val" id="swp-${i}">0</span></span><span>⏱ <span class="stat-val" id="time-${i}">—</span></span></div><div class="chart-area"><canvas id="canvas-${i}"></canvas></div>`;
+    c.innerHTML=`
+      <div class="algo-header">
+        <button class="algo-toggle active" id="tog-${i}" style="border-color:${a.color};background:${a.color}"></button>
+        <div class="algo-header-left">
+          <div class="algo-name"><span class="algo-color-bar" style="background:${a.color}"></span>${a.name}<span class="badge">${a.badge}</span></div>
+        </div>
+        <div class="algo-big-o">${a.complexity}</div>
+      </div>
+      <div class="algo-stats"><span>cmp <span class="stat-val" id="cmp-${i}">0</span></span><span>swp <span class="stat-val" id="swp-${i}">0</span></span><span>⏱ <span class="stat-val" id="time-${i}">—</span></span></div>
+      <div class="chart-area"><canvas id="canvas-${i}"></canvas></div>`;
     g.appendChild(c);
+    document.getElementById('tog-'+i).addEventListener('click', (e) => { e.stopPropagation(); toggleAlgo(i); });
   });
+  updateActiveCount();
   buildDots();
 }
 
 function buildDots() {
   const nav = document.getElementById('dotNav'); nav.innerHTML = '';
   ALGOS.forEach((a,i) => {
-    const d = document.createElement('button'); d.className = 'dot' + (i===0?' active':'');
+    const d = document.createElement('button'); d.className = 'dot';
+    if (i===0) d.classList.add('active');
+    if (!S.active[i]) d.classList.add('hidden-dot');
     d.addEventListener('click', () => {
       const grid = document.getElementById('vizGrid');
       const card = document.getElementById('card-'+i);
@@ -321,10 +393,10 @@ function updateDots() {
   const cards = grid.querySelectorAll('.algo-card');
   let activeIdx = 0;
   cards.forEach((card, i) => {
+    if (!S.active[i]) return;
     const rect = card.getBoundingClientRect();
     const parentRect = grid.getBoundingClientRect();
     if (rect.left < parentRect.right && rect.right > parentRect.left) {
-      // visible — pick the leftmost visible
       if (activeIdx === 0 || Math.abs(rect.left - parentRect.left) < 50) {
         activeIdx = i;
       }
@@ -340,7 +412,7 @@ function reset(){
   S.running=false; S.done=false; S.fin=[false,false,false,false,false]; S.tos.forEach(t=>clearTimeout(t)); S.tos=[]; S.ela=[0,0,0,0,0]; S.stats=ALGOS.map(()=>({cmp:0,swp:0}));
   S.arr=genArr(parseInt(document.getElementById('sizeSelect').value));
   ALGOS.forEach((_,i)=>{
-    const c=document.getElementById('card-'+i); if(c)c.className='algo-card';
+    const c=document.getElementById('card-'+i); if(c)c.className='algo-card' + (S.active[i]?'':' inactive');
     const e1=document.getElementById('cmp-'+i); if(e1)e1.textContent='0';
     const e2=document.getElementById('swp-'+i); if(e2)e2.textContent='0';
     const e3=document.getElementById('time-'+i); if(e3)e3.textContent='—';
@@ -357,11 +429,15 @@ function go(){
     if(S.fin.every(f=>f)){
       S.running=false; S.done=true; document.getElementById('startBtn').disabled=false;
       const sorted=S.arr.slice().sort((a,b)=>a-b);
-      ALGOS.forEach((_,i)=>{const cv=document.getElementById('canvas-'+i);if(cv)draw(cv,sorted,null);});
+      ALGOS.forEach((_,i)=>{
+        if (!S.active[i]) return;
+        const cv=document.getElementById('canvas-'+i);if(cv)draw(cv,sorted,null);
+      });
       return;
     }
     const msp = Math.max(1, Math.round(S.spd/5));
     for(let i=0;i<ALGOS.length;i++){
+      if(!S.active[i]) continue; // skip inactive
       if(S.fin[i])continue; const gen=S.gens[i]; let lastEv=null;
       for(let s=0;s<msp;s++){const r=gen.next();if(r.done){S.fin[i]=true;S.ela[i]=performance.now()-S.t0;const c=document.getElementById('card-'+i);if(c)c.className='algo-card done';const e3=document.getElementById('time-'+i);if(e3)e3.textContent=S.ela[i].toFixed(0)+'ms';const cv=document.getElementById('canvas-'+i);if(cv)draw(cv,r.value,null);break;}lastEv=r.value;}
       if(lastEv){
@@ -371,7 +447,7 @@ function go(){
         const c=document.getElementById('card-'+i);if(c)c.className='algo-card running';
       }
     }
-    for(let i=0;i<ALGOS.length;i++){const e1=document.getElementById('cmp-'+i);if(e1)e1.textContent=S.stats[i].cmp;const e2=document.getElementById('swp-'+i);if(e2)e2.textContent=S.stats[i].swp;}
+    for(let i=0;i<ALGOS.length;i++){if(!S.active[i])continue;const e1=document.getElementById('cmp-'+i);if(e1)e1.textContent=S.stats[i].cmp;const e2=document.getElementById('swp-'+i);if(e2)e2.textContent=S.stats[i].swp;}
     if(S.running){const iv=Math.max(1,60-(S.spd/100)*55);S.tos.push(setTimeout(step,iv));}
   }
   step();
@@ -379,23 +455,23 @@ function go(){
 
 document.addEventListener('DOMContentLoaded',()=>{
   buildUI();
-
-  document.getElementById('sizeSelect').addEventListener('change',()=>{if(!S.running)reset();});
-  document.getElementById('speedSlider').addEventListener('input',e=>{S.spd=parseInt(e.target.value);document.getElementById('speedDisplay').textContent=S.spd+'x';});
-  document.getElementById('startBtn').addEventListener('click',go);
-  document.getElementById('resetBtn').addEventListener('click',()=>{if(S.running){S.running=false;S.tos.forEach(t=>clearTimeout(t));S.tos=[];}reset();});
-
-  // Scroll arrows
   const grid = document.getElementById('vizGrid');
   const sl = document.getElementById('scrollLeft');
   const sr = document.getElementById('scrollRight');
 
   function updateScrollButtons() {
+    if (window.innerWidth >= 1300) { sl.classList.remove('visible'); sr.classList.remove('visible'); return; }
     const canL = grid.scrollLeft > 10;
     const canR = grid.scrollLeft < grid.scrollWidth - grid.clientWidth - 10;
     sl.classList.toggle('visible', canL);
     sr.classList.toggle('visible', canR);
   }
+  window.updateScrollButtons = updateScrollButtons;
+
+  document.getElementById('sizeSelect').addEventListener('change',()=>{if(!S.running)reset();});
+  document.getElementById('speedSlider').addEventListener('input',e=>{S.spd=parseInt(e.target.value);document.getElementById('speedDisplay').textContent=S.spd+'x';});
+  document.getElementById('startBtn').addEventListener('click',go);
+  document.getElementById('resetBtn').addEventListener('click',()=>{if(S.running){S.running=false;S.tos.forEach(t=>clearTimeout(t));S.tos=[];}reset();});
 
   sl.addEventListener('click', () => { grid.scrollBy({ left:-280, behavior:'smooth' }); });
   sr.addEventListener('click', () => { grid.scrollBy({ left:280, behavior:'smooth' }); });
@@ -405,7 +481,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   reset();
   setTimeout(() => { updateScrollButtons(); updateDots(); }, 100);
 
-  let rt;window.addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>{ALGOS.forEach((_,i)=>{const cv=document.getElementById('canvas-'+i);if(cv)draw(cv,S.arr,null);});},200);});
+  let rt;window.addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>{ALGOS.forEach((_,i)=>{if(!S.active[i])return;const cv=document.getElementById('canvas-'+i);if(cv)draw(cv,S.arr,null);});},200);});
 });
 </script>
 </body>
