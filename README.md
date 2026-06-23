@@ -55,6 +55,7 @@ No install required. Open the link, hit **Run**, and watch all 5 algorithms sort
 - **Color-coded visualization** — comparing (cyan), swapping (pink), pivot (yellow), merging (orange), sorted (green)
 - **Dark cyberpunk theme** — gradient bars with glow effects, grid background, smooth animations
 - **Zero dependencies** — single `index.html`, self-contained, works offline
+- **Historical facts** — hover any algorithm header to learn the story behind it (who invented it, when, and why)
 
 ---
 
