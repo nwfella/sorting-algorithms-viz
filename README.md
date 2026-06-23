@@ -23,6 +23,8 @@ No install required. Open the link, hit **Run**, and watch all 5 algorithms sort
 
 ## 📊 Algorithms
 
+### Row 1 — Classics
+
 | # | Algorithm | Complexity | Color |
 |---|-----------|-----------|-------|
 | 1 | **Bubble Sort** | O(n²) | ![](https://via.placeholder.com/12/06b6d4/06b6d4) Cyan |
@@ -30,6 +32,16 @@ No install required. Open the link, hit **Run**, and watch all 5 algorithms sort
 | 3 | **Insertion Sort** | O(n²) | ![](https://via.placeholder.com/12/10b981/10b981) Green |
 | 4 | **Merge Sort** | O(n log n) | ![](https://via.placeholder.com/12/f59e0b/f59e0b) Amber |
 | 5 | **Quick Sort** | O(n log n) | ![](https://via.placeholder.com/12/ec4899/ec4899) Pink |
+
+### Row 2 — Fresh
+
+| # | Algorithm | Complexity | Color |
+|---|-----------|-----------|-------|
+| 6 | **Heap Sort** | O(n log n) | ![](https://via.placeholder.com/12/ff6b6b/ff6b6b) Coral |
+| 7 | **Cocktail Shaker** | O(n²) | ![](https://via.placeholder.com/12/a29bfe/a29bfe) Lavender |
+| 8 | **Radix Sort (LSD)** | O(nk) | ![](https://via.placeholder.com/12/55efc4/55efc4) Mint |
+| 9 | **Shell Sort** | O(n·log²n) | ![](https://via.placeholder.com/12/fd79a8/fd79a8) Salmon |
+| 10 | **Gnome Sort** | O(n²) | ![](https://via.placeholder.com/12/fab1a0/fab1a0) Peach |
 
 ---
 
