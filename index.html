@@ -22,6 +22,8 @@
     background-size: 48px 48px;
   }
   .container { position: relative; z-index: 1; max-width: 1500px; margin: 0 auto; padding: 12px; }
+
+  /* HEADER */
   header {
     display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;
     padding: 12px 18px; background: var(--surface); border: 1px solid var(--border);
@@ -46,21 +48,22 @@
   .btn-primary:hover { filter: brightness(1.15); transform: translateY(-1px); }
   .btn-danger { background: linear-gradient(135deg, var(--red), #dc2626); color: #fff; }
   .btn-danger:hover { filter: brightness(1.15); transform: translateY(-1px); }
-  .btn-small { padding: 5px 10px; font-size: 11px; }
   .btn:disabled { opacity: .4; cursor: not-allowed; transform: none !important; }
   select, input[type="range"] { background: var(--surface2); color: var(--text); border: 1px solid var(--border); border-radius: 6px; padding: 5px 8px; font-family: inherit; font-size: 12px; }
   input[type="range"] { width: 80px; padding: 0; accent-color: var(--accent); }
   .speed-display { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--accent); min-width: 28px; text-align: center; }
+  .active-count { font-size: 11px; color: var(--text-dim); font-family: 'JetBrains Mono', monospace; }
 
-  .active-count {
-    font-size: 11px; color: var(--text-dim); font-family: 'JetBrains Mono', monospace;
+  /* ROW LABEL */
+  .row-label {
+    font-size: 11px; font-weight: 600; color: var(--text-dim);
+    text-transform: uppercase; letter-spacing: .08em; padding: 2px 0 4px 4px;
   }
 
-  /* ===== SCROLLABLE GRID ===== */
-  .viz-scroll-wrap {
-    position: relative;
-    margin-bottom: 10px;
-  }
+  /* ROWS */
+  .viz-rows { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+  .viz-row { position: relative; }
+
   .viz-grid {
     display: flex;
     gap: 10px;
@@ -73,24 +76,24 @@
     scrollbar-width: thin;
     scrollbar-color: var(--border) transparent;
   }
-  .viz-grid::-webkit-scrollbar { height: 6px; }
+  .viz-grid::-webkit-scrollbar { height: 5px; }
   .viz-grid::-webkit-scrollbar-track { background: transparent; }
   .viz-grid::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
   .viz-grid::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
 
   .scroll-btn {
     position: absolute; top: 50%; transform: translateY(-50%);
-    width: 32px; height: 32px; border-radius: 50%;
+    width: 28px; height: 28px; border-radius: 50%;
     background: var(--surface); border: 1px solid var(--border);
     color: var(--text); cursor: pointer; z-index: 10;
     display: flex; align-items: center; justify-content: center;
-    font-size: 16px; transition: all .15s; opacity: 0;
+    font-size: 13px; transition: all .15s; opacity: 0; padding: 0;
   }
   .scroll-btn:hover { background: var(--surface2); border-color: var(--accent); color: var(--accent); }
   .scroll-btn.visible { opacity: 1; }
-  .scroll-btn-left { left: -14px; }
-  .scroll-btn-right { right: -14px; }
-  @media (max-width: 1540px) { .scroll-btn-left { left: -4px; } .scroll-btn-right { right: -4px; } }
+  .scroll-btn-left { left: -4px; }
+  .scroll-btn-right { right: -4px; }
+  @media (min-width: 1400px) { .scroll-btn { display: none; } }
 
   .algo-card {
     flex: 0 0 270px; min-width: 240px;
@@ -106,14 +109,12 @@
     pointer-events: none;
   }
 
-  @media (min-width: 1300px) {
+  @media (min-width: 1400px) {
     .viz-grid { flex-wrap: nowrap; justify-content: center; }
     .algo-card { flex: 1 1 0; min-width: 0; }
     .algo-card.inactive { flex: 0 0 0 !important; min-width: 0 !important; }
-    .scroll-btn { display: none; }
   }
 
-  /* Toggle button */
   .algo-toggle {
     width: 20px; height: 20px; border-radius: 50%;
     border: 2px solid var(--border); background: transparent;
@@ -126,9 +127,7 @@
     background: inherit;
     box-shadow: 0 0 6px;
   }
-  .algo-toggle.active::after {
-    content: '✓'; color: #fff; font-weight: 700; font-size: 11px;
-  }
+  .algo-toggle.active::after { content: '✓'; color: #fff; font-weight: 700; font-size: 11px; }
   .algo-toggle:hover { transform: scale(1.15); }
 
   .algo-card.running { border-color: var(--accent); box-shadow: 0 0 16px rgba(6,182,212,.1); }
@@ -141,23 +140,11 @@
   .algo-stats { display: flex; gap: 8px; margin-bottom: 6px; font-size: 10px; color: var(--text-dim); }
   .algo-stats span { display: flex; align-items: center; gap: 3px; }
   .algo-stats .stat-val { font-family: 'JetBrains Mono', monospace; color: var(--text); font-weight: 600; }
-  .chart-area { position: relative; height: 180px; border-radius: 6px; background: var(--bg); overflow: hidden; border: 1px solid var(--border); }
-  @media (min-height: 800px) { .chart-area { height: 220px; } }
+  .chart-area { position: relative; height: 160px; border-radius: 6px; background: var(--bg); overflow: hidden; border: 1px solid var(--border); }
+  @media (min-height: 900px) { .chart-area { height: 190px; } }
   .chart-area canvas { width: 100%; height: 100%; display: block; }
   .algo-color-bar { width: 6px; height: 6px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
-
-  .dot-nav {
-    display: flex; justify-content: center; gap: 6px;
-    margin-top: 8px; margin-bottom: 4px;
-  }
-  .dot-nav .dot {
-    width: 8px; height: 8px; border-radius: 50%;
-    background: var(--border); cursor: pointer; transition: all .2s; border: none;
-  }
-  .dot-nav .dot.active { background: var(--accent); width: 20px; border-radius: 4px; }
-  .dot-nav .dot:hover { background: var(--text-dim); }
-  .dot-nav .dot.hidden-dot { display: none; }
-
+  .row-divider { height: 8px; }
   .legend {
     background: var(--surface); border: 1px solid var(--border);
     border-radius: 10px; padding: 10px 16px;
@@ -176,7 +163,7 @@
   <header>
     <div class="logo">
       <div class="logo-icon">Sv</div>
-      <div><h1>Sorting Visualizer <span class="sub">· side-by-side</span></h1></div>
+      <div><h1>Sorting Visualizer <span class="sub">· 10 algorithms · 2 rows</span></h1></div>
     </div>
     <div class="controls">
       <label>Size</label>
@@ -189,16 +176,11 @@
       <span class="speed-display" id="speedDisplay">50x</span>
       <button class="btn btn-primary" id="startBtn">▶ Run</button>
       <button class="btn btn-danger" id="resetBtn">↺</button>
-      <span class="active-count" id="activeCount">5/5</span>
+      <span class="active-count" id="activeCount">10/10</span>
     </div>
   </header>
 
-  <div class="viz-scroll-wrap">
-    <button class="scroll-btn scroll-btn-left" id="scrollLeft">◀</button>
-    <div class="viz-grid" id="vizGrid"></div>
-    <button class="scroll-btn scroll-btn-right" id="scrollRight">▶</button>
-  </div>
-  <div class="dot-nav" id="dotNav"></div>
+  <div class="viz-rows" id="vizRows"></div>
 
   <div class="legend">
     <div class="legend-item"><span class="legend-dot" style="background:var(--accent)"></span> Comparing</div>
@@ -212,7 +194,9 @@
 </div>
 
 <script>
+// ============ 10 ALGORITHMS ============
 const ALGOS = [
+  // ---- ROW 0: Classic 5 ----
   { id:'bubble', name:'Bubble Sort', badge:'O(n²)', complexity:'O(n²)', color:'#06b6d4',
     sort: function*(arr) {
       const a = arr.slice(); const n = a.length;
@@ -279,10 +263,76 @@ const ALGOS = [
       yield* qs(0, a.length-1);
       return a;
     }
+  },
+  // ---- ROW 1: Fresh 5 ----
+  { id:'heap', name:'Heap Sort', badge:'O(n log n)', complexity:'O(n log n)', color:'#ff6b6b',
+    sort: function*(arr) {
+      const a = arr.slice(); const n = a.length;
+      function* siftDown(heapSize, root) {
+        let largest = root, left = 2*root+1, right = 2*root+2;
+        if (left < heapSize) { yield { type:'compare', data:a, i:largest, j:left }; if (a[left] > a[largest]) largest = left; }
+        if (right < heapSize) { yield { type:'compare', data:a, i:largest, j:right }; if (a[right] > a[largest]) largest = right; }
+        if (largest !== root) { yield { type:'swap', data:a, i:root, j:largest }; [a[root],a[largest]]=[a[largest],a[root]]; yield* siftDown(heapSize, largest); }
+      }
+      for (let i = Math.floor(n/2)-1; i >= 0; i--) yield* siftDown(n, i);
+      for (let i = n-1; i > 0; i--) { yield { type:'swap', data:a, i:0, j:i }; [a[0],a[i]]=[a[i],a[0]]; yield* siftDown(i, 0); }
+      return a;
+    }
+  },
+  { id:'cocktail', name:'Cocktail Shaker', badge:'O(n²)', complexity:'O(n²)', color:'#a29bfe',
+    sort: function*(arr) {
+      const a = arr.slice(); let lo=0, hi=a.length-1, swapped=true;
+      while (swapped) {
+        swapped = false;
+        for (let i=lo; i<hi; i++) { yield { type:'compare', data:a, i, j:i+1 }; if (a[i] > a[i+1]) { yield { type:'swap', data:a, i, j:i+1 }; [a[i],a[i+1]]=[a[i+1],a[i]]; swapped=true; } }
+        hi--; if (!swapped) break; swapped = false;
+        for (let i=hi; i>lo; i--) { yield { type:'compare', data:a, i, j:i-1 }; if (a[i-1] > a[i]) { yield { type:'swap', data:a, i, j:i-1 }; [a[i-1],a[i]]=[a[i],a[i-1]]; swapped=true; } }
+        lo++;
+      }
+      return a;
+    }
+  },
+  { id:'radix', name:'Radix Sort (LSD)', badge:'O(nk)', complexity:'O(nk)', color:'#55efc4',
+    sort: function*(arr) {
+      const a = arr.slice(), max = Math.max(...a), digits = max.toString().length;
+      for (let pos=0; pos<digits; pos++) {
+        const buckets = Array.from({length:10},()=>[]);
+        for (const v of a) buckets[Math.floor(v/Math.pow(10,pos))%10].push(v);
+        let idx=0;
+        for (const b of buckets) for (const v of b) { a[idx++]=v; yield { type:'radix-place', data:a, i:idx-1 }; }
+      }
+      return a;
+    }
+  },
+  { id:'shell', name:'Shell Sort', badge:'O(n·log²n)', complexity:'O(n·log²n)', color:'#fd79a8',
+    sort: function*(arr) {
+      const a = arr.slice(), n = a.length;
+      for (let gap=Math.floor(n/2); gap>0; gap=Math.floor(gap/2)) {
+        for (let i=gap; i<n; i++) {
+          const temp = a[i]; let j=i;
+          yield { type:'compare', data:a, i:j, j:j-gap };
+          while (j>=gap && a[j-gap] > temp) { yield { type:'swap', data:a, i:j, j:j-gap }; a[j]=a[j-gap]; j-=gap; }
+          a[j] = temp;
+        }
+      }
+      return a;
+    }
+  },
+  { id:'gnome', name:'Gnome Sort', badge:'O(n²)', complexity:'O(n²)', color:'#fab1a0',
+    sort: function*(arr) {
+      const a = arr.slice(), n = a.length; let i=0;
+      while (i < n) {
+        if (i===0 || a[i-1] <= a[i]) { yield { type:'compare', data:a, i, j:i-1 }; i++; }
+        else { yield { type:'swap', data:a, i:i-1, j:i }; [a[i],a[i-1]]=[a[i-1],a[i]]; i--; }
+      }
+      return a;
+    }
   }
 ];
-const C = { compare:'#06b6d4', swap:'#ec4899', pivot:'#f59e0b', merge:'#f97316', dflt:'#334155' };
-let S = { arr:[], running:false, spd:50, gens:[], fin:[false,false,false,false,false], tos:[], stats:ALGOS.map(()=>({cmp:0,swp:0})), t0:null, ela:[0,0,0,0,0], done:false, active:[true,true,true,true,true] };
+
+const C = { compare:'#06b6d4', swap:'#ec4899', pivot:'#f59e0b', merge:'#f97316', dflt:'#334155', radix:'#55efc4' };
+const TOTAL = ALGOS.length;
+let S = { arr:[], running:false, spd:50, gens:[], fin:Array(TOTAL).fill(false), tos:[], stats:ALGOS.map(()=>({cmp:0,swp:0})), t0:null, ela:Array(TOTAL).fill(0), done:false, active:Array(TOTAL).fill(true) };
 
 function bc(ev) {
   const clr = new Array(S.arr.length).fill(C.dflt);
@@ -292,6 +342,7 @@ function bc(ev) {
   if (t==='pivot'&&ev.i!==void 0) clr[ev.i]=C.pivot;
   if (t==='merge-cmp') { if(ev.i!==void 0)clr[ev.i]=C.compare; if(ev.j!==void 0)clr[ev.j]=C.merge; }
   if (t==='merge-set'&&ev.i!==void 0) clr[ev.i]=C.merge;
+  if (t==='radix-place'&&ev.i!==void 0) clr[ev.i]=C.radix;
   return clr;
 }
 function dk(h,f){const r=parseInt(h.slice(1,3),16),g=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16);return `rgb(${(r*(1-f))|0},${(g*(1-f))|0},${(b*(1-f))|0})`;}
@@ -303,12 +354,12 @@ function draw(cv, data, ev) {
   const ctx=cv.getContext('2d'); ctx.scale(dpr,dpr); ctx.clearRect(0,0,w,h);
   const n=data.length; if(!n)return;
   const cs=bc(ev), mn=Math.min(...data), mx=Math.max(...data), mg=mx-mn||1;
-  const gp=1, bw=(w-(n-1)*gp)/n, pt=12, pb=12, ch=h-pt-pb;
+  const gp=1, bw=(w-(n-1)*gp)/n, pt=10, pb=10, ch=h-pt-pb;
   for(let i=0;i<n;i++){
-    const v=(data[i]-mn)/mg, bh=v*ch, x=i*(bw+gp), y=h-pb-bh, r2=Math.min(bw/2,2.5), cl=cs[i];
+    const v=(data[i]-mn)/mg, bh=v*ch, x=i*(bw+gp), y=h-pb-bh, r2=Math.min(bw/2,2), cl=cs[i];
     ctx.beginPath(); ctx.moveTo(x,h-pb); ctx.lineTo(x,y+r2); ctx.quadraticCurveTo(x,y,x+r2,y);
     ctx.lineTo(x+bw-r2,y); ctx.quadraticCurveTo(x+bw,y,x+bw,y+r2); ctx.lineTo(x+bw,h-pb); ctx.closePath();
-    if(cl!==C.dflt){ctx.shadowColor=cl;ctx.shadowBlur=6;}
+    if(cl!==C.dflt){ctx.shadowColor=cl;ctx.shadowBlur=5;}
     const gd=ctx.createLinearGradient(x,y,x,h-pb);
     if(cl===C.dflt){gd.addColorStop(0,'#475569');gd.addColorStop(1,'#1e293b');}
     else{gd.addColorStop(0,cl);gd.addColorStop(1,dk(cl,.4));}
@@ -316,21 +367,15 @@ function draw(cv, data, ev) {
   }
   if(S.done){
     ctx.fillStyle='rgba(16,185,129,.10)'; ctx.fillRect(0,0,w,h);
-    ctx.fillStyle='#10b981'; ctx.font='bold 13px Inter,system-ui,sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillStyle='#10b981'; ctx.font='bold 12px Inter,system-ui,sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
     ctx.fillText('✓ Sorted',w/2,h/2);
   }
 }
 
 function updateActiveCount() {
   const n = S.active.filter(Boolean).length;
-  document.getElementById('activeCount').textContent = n + '/' + ALGOS.length;
+  document.getElementById('activeCount').textContent = n + '/' + TOTAL;
 }
-function updateDotsVisibility() {
-  document.querySelectorAll('.dot').forEach((d, i) => {
-    d.classList.toggle('hidden-dot', !S.active[i]);
-  });
-}
-
 function toggleAlgo(idx) {
   S.active[idx] = !S.active[idx];
   const card = document.getElementById('card-'+idx);
@@ -347,69 +392,118 @@ function toggleAlgo(idx) {
     toggle.style.background = '';
   }
   updateActiveCount();
-  updateDotsVisibility();
-  // Recalculate scroll buttons & dots
-  setTimeout(() => { updateScrollButtons(); updateDots(); }, 350);
+  updateAllDots();
+  setTimeout(updateAllScrollButtons, 350);
 }
 
 function buildUI() {
-  const g=document.getElementById('vizGrid'); g.innerHTML='';
-  ALGOS.forEach((a,i)=>{
-    const c=document.createElement('div'); c.className='algo-card'; c.id='card-'+i;
-    c.innerHTML=`
-      <div class="algo-header">
-        <button class="algo-toggle active" id="tog-${i}" style="border-color:${a.color};background:${a.color}"></button>
-        <div class="algo-header-left">
-          <div class="algo-name"><span class="algo-color-bar" style="background:${a.color}"></span>${a.name}<span class="badge">${a.badge}</span></div>
+  const container = document.getElementById('vizRows'); container.innerHTML = '';
+  const rows = [[0,1,2,3,4], [5,6,7,8,9]];
+  const labels = ['Classic', 'Fresh'];
+
+  rows.forEach((rowIdxs, ri) => {
+    const row = document.createElement('div'); row.className = 'viz-row';
+
+    const grid = document.createElement('div'); grid.className = 'viz-grid'; grid.id = 'vizGrid'+ri;
+
+    rowIdxs.forEach(i => {
+      const a = ALGOS[i];
+      const c = document.createElement('div'); c.className = 'algo-card'; c.id = 'card-'+i;
+      c.innerHTML=`
+        <div class="algo-header">
+          <button class="algo-toggle active" id="tog-${i}" style="border-color:${a.color};background:${a.color}"></button>
+          <div class="algo-header-left">
+            <div class="algo-name"><span class="algo-color-bar" style="background:${a.color}"></span>${a.name}<span class="badge">${a.badge}</span></div>
+          </div>
+          <div class="algo-big-o">${a.complexity}</div>
         </div>
-        <div class="algo-big-o">${a.complexity}</div>
-      </div>
-      <div class="algo-stats"><span>cmp <span class="stat-val" id="cmp-${i}">0</span></span><span>swp <span class="stat-val" id="swp-${i}">0</span></span><span>⏱ <span class="stat-val" id="time-${i}">—</span></span></div>
-      <div class="chart-area"><canvas id="canvas-${i}"></canvas></div>`;
-    g.appendChild(c);
-    document.getElementById('tog-'+i).addEventListener('click', (e) => { e.stopPropagation(); toggleAlgo(i); });
-  });
-  updateActiveCount();
-  buildDots();
-}
-
-function buildDots() {
-  const nav = document.getElementById('dotNav'); nav.innerHTML = '';
-  ALGOS.forEach((a,i) => {
-    const d = document.createElement('button'); d.className = 'dot';
-    if (i===0) d.classList.add('active');
-    if (!S.active[i]) d.classList.add('hidden-dot');
-    d.addEventListener('click', () => {
-      const grid = document.getElementById('vizGrid');
-      const card = document.getElementById('card-'+i);
-      if (card) card.scrollIntoView({ behavior:'smooth', block:'nearest', inline:'start' });
+        <div class="algo-stats"><span>cmp <span class="stat-val" id="cmp-${i}">0</span></span><span>swp <span class="stat-val" id="swp-${i}">0</span></span><span>⏱ <span class="stat-val" id="time-${i}">—</span></span></div>
+        <div class="chart-area"><canvas id="canvas-${i}"></canvas></div>`;
+      grid.appendChild(c);
+      document.getElementById('tog-'+i).addEventListener('click', (e) => { e.stopPropagation(); toggleAlgo(i); });
     });
-    nav.appendChild(d);
+
+    // Scroll buttons
+    const sl = document.createElement('button'); sl.className = 'scroll-btn scroll-btn-left'; sl.id = 'sl'+ri;
+    sl.textContent = '◀';
+    const sr = document.createElement('button'); sr.className = 'scroll-btn scroll-btn-right'; sr.id = 'sr'+ri;
+    sr.textContent = '▶';
+    row.appendChild(sl); row.appendChild(grid); row.appendChild(sr);
+
+    // Dot nav
+    const dn = document.createElement('div'); dn.className = 'dot-nav'; dn.id = 'dotNav'+ri;
+    rowIdxs.forEach((_, j) => {
+      const d = document.createElement('button'); d.className = 'dot' + (j===0?' active':'');
+      d.dataset.row = ri; d.dataset.col = j;
+      d.addEventListener('click', () => {
+        const g = document.getElementById('vizGrid'+ri);
+        const gi = rows[ri][j];
+        const card = document.getElementById('card-'+gi);
+        if (card) card.scrollIntoView({ behavior:'smooth', block:'nearest', inline:'start' });
+      });
+      dn.appendChild(d);
+    });
+    row.appendChild(dn);
+    container.appendChild(row);
+
+    // Scroll handlers
+    sl.addEventListener('click', () => { grid.scrollBy({ left:-280, behavior:'smooth' }); });
+    sr.addEventListener('click', () => { grid.scrollBy({ left:280, behavior:'smooth' }); });
+    grid.addEventListener('scroll', () => { updateRowDots(ri); updateScrollButtonsFor(ri); });
   });
+
+  updateActiveCount();
 }
 
-function updateDots() {
-  const grid = document.getElementById('vizGrid');
+function updateRowDots(ri) {
+  const grid = document.getElementById('vizGrid'+ri);
+  const startIdx = ri === 0 ? 0 : 5;
+  const rowIdxs = [0,1,2,3,4];
   const cards = grid.querySelectorAll('.algo-card');
-  let activeIdx = 0;
-  cards.forEach((card, i) => {
-    if (!S.active[i]) return;
+  const dots = document.querySelectorAll('#dotNav'+ri+' .dot');
+  let activeCol = 0;
+  cards.forEach((card, col) => {
+    if (!S.active[startIdx+col]) return;
     const rect = card.getBoundingClientRect();
     const parentRect = grid.getBoundingClientRect();
     if (rect.left < parentRect.right && rect.right > parentRect.left) {
-      if (activeIdx === 0 || Math.abs(rect.left - parentRect.left) < 50) {
-        activeIdx = i;
-      }
+      if (activeCol === 0 || Math.abs(rect.left - parentRect.left) < 50) activeCol = col;
     }
   });
-  const dots = document.querySelectorAll('.dot');
-  dots.forEach((d,i) => d.classList.toggle('active', i===activeIdx));
+  dots.forEach((d, col) => d.classList.toggle('active', col === activeCol));
 }
+
+function updateAllDots() {
+  updateRowDots(0); updateRowDots(1);
+  // Hide dots for inactive algos
+  document.querySelectorAll('.dot-nav').forEach((nav, ri) => {
+    const start = ri===0?0:5;
+    nav.querySelectorAll('.dot').forEach((d, col) => {
+      d.classList.toggle('hidden-dot', !S.active[start+col]);
+    });
+  });
+}
+
+function updateScrollButtonsFor(ri) {
+  if (window.innerWidth >= 1400) {
+    document.getElementById('sl'+ri).classList.remove('visible');
+    document.getElementById('sr'+ri).classList.remove('visible');
+    return;
+  }
+  const grid = document.getElementById('vizGrid'+ri);
+  const sl = document.getElementById('sl'+ri);
+  const sr = document.getElementById('sr'+ri);
+  const canL = grid.scrollLeft > 10;
+  const canR = grid.scrollLeft < grid.scrollWidth - grid.clientWidth - 10;
+  sl.classList.toggle('visible', canL);
+  sr.classList.toggle('visible', canR);
+}
+function updateAllScrollButtons() { updateScrollButtonsFor(0); updateScrollButtonsFor(1); }
 
 function genArr(n){const a=[];for(let i=0;i<n;i++)a.push(Math.floor(Math.random()*180)+20);return a;}
 
 function reset(){
-  S.running=false; S.done=false; S.fin=[false,false,false,false,false]; S.tos.forEach(t=>clearTimeout(t)); S.tos=[]; S.ela=[0,0,0,0,0]; S.stats=ALGOS.map(()=>({cmp:0,swp:0}));
+  S.running=false; S.done=false; S.fin=Array(TOTAL).fill(false); S.tos.forEach(t=>clearTimeout(t)); S.tos=[]; S.ela=Array(TOTAL).fill(0); S.stats=ALGOS.map(()=>({cmp:0,swp:0}));
   S.arr=genArr(parseInt(document.getElementById('sizeSelect').value));
   ALGOS.forEach((_,i)=>{
     const c=document.getElementById('card-'+i); if(c)c.className='algo-card' + (S.active[i]?'':' inactive');
@@ -422,23 +516,20 @@ function reset(){
 }
 
 function go(){
-  if(S.running)return; S.running=true; S.done=false; S.fin=[false,false,false,false,false]; S.t0=performance.now(); S.stats=ALGOS.map(()=>({cmp:0,swp:0}));
+  if(S.running)return; S.running=true; S.done=false; S.fin=Array(TOTAL).fill(false); S.t0=performance.now(); S.stats=ALGOS.map(()=>({cmp:0,swp:0}));
   document.getElementById('startBtn').disabled=true; S.gens=ALGOS.map(a=>a.sort(S.arr));
   function step(){
     if(!S.running)return;
     if(S.fin.every(f=>f)){
       S.running=false; S.done=true; document.getElementById('startBtn').disabled=false;
       const sorted=S.arr.slice().sort((a,b)=>a-b);
-      ALGOS.forEach((_,i)=>{
-        if (!S.active[i]) return;
-        const cv=document.getElementById('canvas-'+i);if(cv)draw(cv,sorted,null);
-      });
+      ALGOS.forEach((_,i)=>{if(!S.active[i])return;const cv=document.getElementById('canvas-'+i);if(cv)draw(cv,sorted,null);});
       return;
     }
     const msp = Math.max(1, Math.round(S.spd/5));
-    for(let i=0;i<ALGOS.length;i++){
-      if(!S.active[i]) continue; // skip inactive
-      if(S.fin[i])continue; const gen=S.gens[i]; let lastEv=null;
+    for(let i=0;i<TOTAL;i++){
+      if(!S.active[i]||S.fin[i])continue;
+      const gen=S.gens[i]; let lastEv=null;
       for(let s=0;s<msp;s++){const r=gen.next();if(r.done){S.fin[i]=true;S.ela[i]=performance.now()-S.t0;const c=document.getElementById('card-'+i);if(c)c.className='algo-card done';const e3=document.getElementById('time-'+i);if(e3)e3.textContent=S.ela[i].toFixed(0)+'ms';const cv=document.getElementById('canvas-'+i);if(cv)draw(cv,r.value,null);break;}lastEv=r.value;}
       if(lastEv){
         if(lastEv.type==='compare'||lastEv.type==='merge-cmp')S.stats[i].cmp++;
@@ -447,7 +538,7 @@ function go(){
         const c=document.getElementById('card-'+i);if(c)c.className='algo-card running';
       }
     }
-    for(let i=0;i<ALGOS.length;i++){if(!S.active[i])continue;const e1=document.getElementById('cmp-'+i);if(e1)e1.textContent=S.stats[i].cmp;const e2=document.getElementById('swp-'+i);if(e2)e2.textContent=S.stats[i].swp;}
+    for(let i=0;i<TOTAL;i++){if(!S.active[i])continue;const e1=document.getElementById('cmp-'+i);if(e1)e1.textContent=S.stats[i].cmp;const e2=document.getElementById('swp-'+i);if(e2)e2.textContent=S.stats[i].swp;}
     if(S.running){const iv=Math.max(1,60-(S.spd/100)*55);S.tos.push(setTimeout(step,iv));}
   }
   step();
@@ -455,33 +546,19 @@ function go(){
 
 document.addEventListener('DOMContentLoaded',()=>{
   buildUI();
-  const grid = document.getElementById('vizGrid');
-  const sl = document.getElementById('scrollLeft');
-  const sr = document.getElementById('scrollRight');
-
-  function updateScrollButtons() {
-    if (window.innerWidth >= 1300) { sl.classList.remove('visible'); sr.classList.remove('visible'); return; }
-    const canL = grid.scrollLeft > 10;
-    const canR = grid.scrollLeft < grid.scrollWidth - grid.clientWidth - 10;
-    sl.classList.toggle('visible', canL);
-    sr.classList.toggle('visible', canR);
-  }
-  window.updateScrollButtons = updateScrollButtons;
 
   document.getElementById('sizeSelect').addEventListener('change',()=>{if(!S.running)reset();});
   document.getElementById('speedSlider').addEventListener('input',e=>{S.spd=parseInt(e.target.value);document.getElementById('speedDisplay').textContent=S.spd+'x';});
   document.getElementById('startBtn').addEventListener('click',go);
   document.getElementById('resetBtn').addEventListener('click',()=>{if(S.running){S.running=false;S.tos.forEach(t=>clearTimeout(t));S.tos=[];}reset();});
 
-  sl.addEventListener('click', () => { grid.scrollBy({ left:-280, behavior:'smooth' }); });
-  sr.addEventListener('click', () => { grid.scrollBy({ left:280, behavior:'smooth' }); });
-  grid.addEventListener('scroll', () => { updateScrollButtons(); updateDots(); });
-  window.addEventListener('resize', () => { updateScrollButtons(); updateDots(); });
+  window.addEventListener('resize',()=>{ updateAllScrollButtons(); updateAllDots(); });
 
   reset();
-  setTimeout(() => { updateScrollButtons(); updateDots(); }, 100);
+  setTimeout(()=>{updateAllScrollButtons(); updateAllDots();}, 100);
 
-  let rt;window.addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>{ALGOS.forEach((_,i)=>{if(!S.active[i])return;const cv=document.getElementById('canvas-'+i);if(cv)draw(cv,S.arr,null);});},200);});
+  let rt;
+  window.addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>{ALGOS.forEach((_,i)=>{if(!S.active[i])return;const cv=document.getElementById('canvas-'+i);if(cv)draw(cv,S.arr,null);});},200);});
 });
 </script>
 </body>
