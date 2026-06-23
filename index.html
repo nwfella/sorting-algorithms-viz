@@ -23,7 +23,6 @@
   }
   .container { position: relative; z-index: 1; max-width: 1500px; margin: 0 auto; padding: 12px; }
 
-  /* HEADER */
   header {
     display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;
     padding: 12px 18px; background: var(--surface); border: 1px solid var(--border);
@@ -54,13 +53,6 @@
   .speed-display { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--accent); min-width: 28px; text-align: center; }
   .active-count { font-size: 11px; color: var(--text-dim); font-family: 'JetBrains Mono', monospace; }
 
-  /* ROW LABEL */
-  .row-label {
-    font-size: 11px; font-weight: 600; color: var(--text-dim);
-    text-transform: uppercase; letter-spacing: .08em; padding: 2px 0 4px 4px;
-  }
-
-  /* ROWS */
   .viz-rows { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
   .viz-row { position: relative; }
 
@@ -102,13 +94,13 @@
     transition: flex .3s ease, opacity .3s ease, border-color .2s, box-shadow .2s;
     scroll-snap-align: start;
     opacity: 1;
+    position: relative;
   }
   .algo-card.inactive {
     flex: 0 0 0 !important; min-width: 0 !important; max-width: 0 !important;
     padding: 0; margin: 0; border: none; overflow: hidden; opacity: 0;
     pointer-events: none;
   }
-
   @media (min-width: 1400px) {
     .viz-grid { flex-wrap: nowrap; justify-content: center; }
     .algo-card { flex: 1 1 0; min-width: 0; }
@@ -122,17 +114,13 @@
     transition: all .2s; flex-shrink: 0; padding: 0;
     font-size: 10px; color: transparent;
   }
-  .algo-toggle.active {
-    border-color: inherit;
-    background: inherit;
-    box-shadow: 0 0 6px;
-  }
+  .algo-toggle.active { border-color: inherit; background: inherit; box-shadow: 0 0 6px; }
   .algo-toggle.active::after { content: '✓'; color: #fff; font-weight: 700; font-size: 11px; }
   .algo-toggle:hover { transform: scale(1.15); }
 
   .algo-card.running { border-color: var(--accent); box-shadow: 0 0 16px rgba(6,182,212,.1); }
   .algo-card.done { border-color: var(--green); box-shadow: 0 0 16px rgba(16,185,129,.1); }
-  .algo-header { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+  .algo-header { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; cursor: help; }
   .algo-header-left { display: flex; align-items: center; gap: 5px; flex: 1; min-width: 0; }
   .algo-name { font-size: 12px; font-weight: 700; display: flex; align-items: center; gap: 5px; white-space: nowrap; }
   .algo-name .badge { font-size: 8px; font-weight: 600; padding: 2px 5px; border-radius: 3px; background: var(--surface2); color: var(--text-dim); }
@@ -144,7 +132,7 @@
   @media (min-height: 900px) { .chart-area { height: 190px; } }
   .chart-area canvas { width: 100%; height: 100%; display: block; }
   .algo-color-bar { width: 6px; height: 6px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
-  .row-divider { height: 8px; }
+
   .dot-nav { display: flex; justify-content: center; gap: 6px; margin-top: 6px; }
   .dot-nav .dot {
     width: 8px; height: 8px; border-radius: 50%;
@@ -165,6 +153,53 @@
   footer { text-align: center; font-size: 11px; color: var(--text-dim); padding: 20px 0; margin-top: 6px; }
   footer a { color: var(--accent); text-decoration: none; }
   footer a:hover { text-decoration: underline; }
+
+  /* ===== TOOLTIP ===== */
+  .algo-fact-tip {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%);
+    width: 260px;
+    max-width: 90vw;
+    background: #0f172a;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 11px;
+    line-height: 1.55;
+    color: var(--text);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .2s ease, transform .2s ease;
+    transform-origin: top center;
+    transform: translateX(-50%) translateY(4px);
+    z-index: 100;
+    box-shadow: 0 8px 32px rgba(0,0,0,.5);
+    word-wrap: break-word;
+  }
+  .algo-fact-tip.visible {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  .algo-fact-tip .tip-title {
+    font-weight: 700; font-size: 12px; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;
+  }
+  .algo-fact-tip .tip-title .tip-badge {
+    font-size: 9px; font-weight: 600; padding: 1px 5px; border-radius: 3px;
+    background: var(--surface2); color: var(--text-dim);
+  }
+  .algo-fact-tip .tip-body { color: #94a3b8; }
+  .algo-fact-tip .tip-close {
+    position: absolute; top: 6px; right: 8px;
+    background: none; border: none; color: var(--text-dim);
+    cursor: pointer; font-size: 14px; line-height: 1; padding: 2px;
+    pointer-events: auto;
+  }
+  .algo-fact-tip .tip-close:hover { color: var(--text); }
+
+  /* Pin the tooltip inside the card for positioning */
+  .algo-card { position: relative; }
 </style>
 </head>
 <body>
@@ -203,10 +238,11 @@
 </div>
 
 <script>
-// ============ 10 ALGORITHMS ============
+// ============ 10 ALGORITHMS with historical facts ============
 const ALGOS = [
   // ---- ROW 0: Classic 5 ----
   { id:'bubble', name:'Bubble Sort', badge:'O(n²)', complexity:'O(n²)', color:'#06b6d4',
+    fact:'The name "bubble sort" was coined by Kenneth E. Iverson in his 1962 book "A Programming Language" (APL). Smaller elements "bubble" to the top like bubbles in a glass of champagne. It was first analyzed by Edward H. Friend in 1956.',
     sort: function*(arr) {
       const a = arr.slice(); const n = a.length;
       for (let i = 0; i < n - 1; i++) {
@@ -221,6 +257,7 @@ const ALGOS = [
     }
   },
   { id:'selection', name:'Selection Sort', badge:'O(n²)', complexity:'O(n²)', color:'#8b5cf6',
+    fact:'Selection Sort was noted as early as 1956 by Harold H. Seward for one remarkable property: it never performs more than O(n) swaps — the minimum possible. This makes it ideal when writing to memory is expensive (like EEPROM / flash storage).',
     sort: function*(arr) {
       const a = arr.slice(); const n = a.length;
       for (let i = 0; i < n - 1; i++) {
@@ -235,6 +272,7 @@ const ALGOS = [
     }
   },
   { id:'insertion', name:'Insertion Sort', badge:'O(n²)', complexity:'O(n²)', color:'#10b981',
+    fact:'Insertion Sort is how most people sort playing cards in their hands — take one card, insert it into the correct position. Python\'s built-in sort (Timsort) uses Insertion Sort for small subarrays because it\'s faster than O(n log n) algorithms on tiny data sets.',
     sort: function*(arr) {
       const a = arr.slice(); const n = a.length;
       for (let i = 1; i < n; i++) {
@@ -247,6 +285,7 @@ const ALGOS = [
     }
   },
   { id:'merge', name:'Merge Sort', badge:'O(n log n)', complexity:'O(n log n)', color:'#f59e0b',
+    fact:'Merge Sort was invented by John von Neumann in 1945 — the same man who conceived the von Neumann architecture that virtually all modern computers are built on. It was the first general-purpose O(n log n) sorting algorithm ever devised.',
     sort: function*(arr) {
       const a = arr.slice();
       function* ms(lo, hi) { if (lo >= hi) return; const mid = (lo+hi)>>>1; yield* ms(lo,mid); yield* ms(mid+1,hi); yield* mg(lo,mid,hi); }
@@ -261,6 +300,7 @@ const ALGOS = [
     }
   },
   { id:'quick', name:'Quick Sort', badge:'O(n log n)', complexity:'O(n log n)', color:'#ec4899',
+    fact:'Quick Sort was developed by Tony Hoare in 1959 while he was a visiting student at Moscow State University, working on machine translation. He needed to sort English words efficiently. Hoare later won the Turing Award (1980) — computing\'s Nobel Prize.',
     sort: function*(arr) {
       const a = arr.slice();
       function* qs(lo, hi) { if (lo>=hi) return; const p = yield* pt(lo,hi); yield* qs(lo,p-1); yield* qs(p+1,hi); }
@@ -275,6 +315,7 @@ const ALGOS = [
   },
   // ---- ROW 1: Fresh 5 ----
   { id:'heap', name:'Heap Sort', badge:'O(n log n)', complexity:'O(n log n)', color:'#ff6b6b',
+    fact:'Heap Sort was invented by J. W. J. Williams in 1964. Robert W. Floyd improved it the very same year, adding the O(n) heap construction. The heap data structure was originally designed specifically for sorting — not for priority queues as it\'s commonly used today.',
     sort: function*(arr) {
       const a = arr.slice(); const n = a.length;
       function* siftDown(heapSize, root) {
@@ -289,6 +330,7 @@ const ALGOS = [
     }
   },
   { id:'cocktail', name:'Cocktail Shaker', badge:'O(n²)', complexity:'O(n²)', color:'#a29bfe',
+    fact:'Cocktail Shaker (or bidirectional bubble sort) was first formally described by Donald Knuth in The Art of Computer Programming (1973). It\'s called a "shaker" because it passes left-to-right then right-to-left — like a bartender shaking a cocktail.',
     sort: function*(arr) {
       const a = arr.slice(); let lo=0, hi=a.length-1, swapped=true;
       while (swapped) {
@@ -302,6 +344,7 @@ const ALGOS = [
     }
   },
   { id:'radix', name:'Radix Sort (LSD)', badge:'O(nk)', complexity:'O(nk)', color:'#55efc4',
+    fact:'Radix Sort predates electronic computers entirely. Herman Hollerith used it in 1887 to sort punched cards for the US Census — his tabulating machine launched IBM. It\'s one of the oldest computational sorting methods in human history.',
     sort: function*(arr) {
       const a = arr.slice(), max = Math.max(...a), digits = max.toString().length;
       for (let pos=0; pos<digits; pos++) {
@@ -314,6 +357,7 @@ const ALGOS = [
     }
   },
   { id:'shell', name:'Shell Sort', badge:'O(n·log²n)', complexity:'O(n·log²n)', color:'#fd79a8',
+    fact:'Shell Sort was invented by Donald Shell in 1959 — and it was the first sorting algorithm to break the mythical O(n²) barrier. The choice of gap sequence still isn\'t fully solved: the best known gap sequences are an active area of research.',
     sort: function*(arr) {
       const a = arr.slice(), n = a.length;
       for (let gap=Math.floor(n/2); gap>0; gap=Math.floor(gap/2)) {
@@ -328,6 +372,7 @@ const ALGOS = [
     }
   },
   { id:'gnome', name:'Gnome Sort', badge:'O(n²)', complexity:'O(n²)', color:'#fab1a0',
+    fact:'Gnome Sort was created by Hamid Sarbazi-Azad in 2000 under the name "Stupid Sort." Dick Grune renamed it: "A gnome drags his flower pot forward one step at a time — if the pot is in the right spot he steps ahead, otherwise he swaps and steps back."',
     sort: function*(arr) {
       const a = arr.slice(), n = a.length; let i=0;
       while (i < n) {
@@ -385,6 +430,7 @@ function updateActiveCount() {
   const n = S.active.filter(Boolean).length;
   document.getElementById('activeCount').textContent = n + '/' + TOTAL;
 }
+
 function toggleAlgo(idx) {
   S.active[idx] = !S.active[idx];
   const card = document.getElementById('card-'+idx);
@@ -405,14 +451,51 @@ function toggleAlgo(idx) {
   setTimeout(updateAllScrollButtons, 350);
 }
 
+// ===== TOOLTIP LOGIC =====
+function showFact(idx) {
+  const existing = document.querySelector('.algo-fact-tip');
+  if (existing) existing.remove();
+
+  const a = ALGOS[idx];
+  const tip = document.createElement('div');
+  tip.className = 'algo-fact-tip visible';
+  tip.innerHTML = `
+    <button class="tip-close" onclick="this.parentElement.remove()">✕</button>
+    <div class="tip-title" style="color:${a.color}">
+      <span class="algo-color-bar" style="background:${a.color};width:8px;height:8px"></span>
+      ${a.name}
+      <span class="tip-badge">${a.complexity}</span>
+    </div>
+    <div class="tip-body">${a.fact}</div>
+  `;
+
+  const card = document.getElementById('card-'+idx);
+  card.appendChild(tip);
+
+  // Auto-close after 8 seconds
+  setTimeout(() => { if (tip.parentNode) tip.remove(); }, 8000);
+}
+
+function hideFact(idx) {
+  // Don't auto-hide on mouseout — let user read. Close via ✕ or timeout.
+}
+
+// Touch support: tap the header to toggle fact on mobile
+function toggleFact(idx) {
+  const existing = document.querySelector('.algo-fact-tip');
+  if (existing && existing.closest('#card-'+idx)) {
+    existing.remove();
+    return;
+  }
+  showFact(idx);
+}
+
 function buildUI() {
   const container = document.getElementById('vizRows'); container.innerHTML = '';
   const rows = [[0,1,2,3,4], [5,6,7,8,9]];
-  const labels = ['Classic', 'Fresh'];
 
   rows.forEach((rowIdxs, ri) => {
     const row = document.createElement('div'); row.className = 'viz-row';
-
     const grid = document.createElement('div'); grid.className = 'viz-grid'; grid.id = 'vizGrid'+ri;
 
     rowIdxs.forEach(i => {
@@ -429,25 +512,39 @@ function buildUI() {
         <div class="algo-stats"><span>cmp <span class="stat-val" id="cmp-${i}">0</span></span><span>swp <span class="stat-val" id="swp-${i}">0</span></span><span>⏱ <span class="stat-val" id="time-${i}">—</span></span></div>
         <div class="chart-area"><canvas id="canvas-${i}"></canvas></div>`;
       grid.appendChild(c);
+
       c.querySelector('.algo-toggle').addEventListener('click', (e) => { e.stopPropagation(); toggleAlgo(i); });
+
+      // Desktop: hover on header shows fact
+      c.querySelector('.algo-header').addEventListener('mouseenter', () => showFact(i));
+      c.querySelector('.algo-header').addEventListener('mouseleave', () => {
+        // Small delay so accidental pass-over doesn't close immediately
+        setTimeout(() => {
+          const tip = document.querySelector('.algo-fact-tip');
+          if (tip && !tip.matches(':hover')) tip.remove();
+        }, 300);
+      });
+
+      // Touch / click on header
+      c.querySelector('.algo-header').addEventListener('click', (e) => {
+        if (e.target.closest('.algo-toggle')) return;
+        toggleFact(i);
+      });
     });
 
-    // Scroll buttons
     const sl = document.createElement('button'); sl.className = 'scroll-btn scroll-btn-left'; sl.id = 'sl'+ri;
     sl.textContent = '◀';
     const sr = document.createElement('button'); sr.className = 'scroll-btn scroll-btn-right'; sr.id = 'sr'+ri;
     sr.textContent = '▶';
     row.appendChild(sl); row.appendChild(grid); row.appendChild(sr);
 
-    // Dot nav
     const dn = document.createElement('div'); dn.className = 'dot-nav'; dn.id = 'dotNav'+ri;
     rowIdxs.forEach((_, j) => {
       const d = document.createElement('button'); d.className = 'dot' + (j===0?' active':'');
       d.dataset.row = ri; d.dataset.col = j;
       d.addEventListener('click', () => {
         const g = document.getElementById('vizGrid'+ri);
-        const gi = rows[ri][j];
-        const card = document.getElementById('card-'+gi);
+        const card = document.getElementById('card-'+rows[ri][j]);
         if (card) card.scrollIntoView({ behavior:'smooth', block:'nearest', inline:'start' });
       });
       dn.appendChild(d);
@@ -455,7 +552,6 @@ function buildUI() {
     row.appendChild(dn);
     container.appendChild(row);
 
-    // Scroll handlers
     sl.addEventListener('click', () => { grid.scrollBy({ left:-280, behavior:'smooth' }); });
     sr.addEventListener('click', () => { grid.scrollBy({ left:280, behavior:'smooth' }); });
     grid.addEventListener('scroll', () => { updateRowDots(ri); updateScrollButtonsFor(ri); });
@@ -467,7 +563,6 @@ function buildUI() {
 function updateRowDots(ri) {
   const grid = document.getElementById('vizGrid'+ri);
   const startIdx = ri === 0 ? 0 : 5;
-  const rowIdxs = [0,1,2,3,4];
   const cards = grid.querySelectorAll('.algo-card');
   const dots = document.querySelectorAll('#dotNav'+ri+' .dot');
   let activeCol = 0;
@@ -484,7 +579,6 @@ function updateRowDots(ri) {
 
 function updateAllDots() {
   updateRowDots(0); updateRowDots(1);
-  // Hide dots for inactive algos
   document.querySelectorAll('.dot-nav').forEach((nav, ri) => {
     const start = ri===0?0:5;
     nav.querySelectorAll('.dot').forEach((d, col) => {
@@ -568,6 +662,13 @@ document.addEventListener('DOMContentLoaded',()=>{
 
   let rt;
   window.addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>{ALGOS.forEach((_,i)=>{if(!S.active[i])return;const cv=document.getElementById('canvas-'+i);if(cv)draw(cv,S.arr,null);});},200);});
+
+  // Close tooltip if user clicks outside
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.algo-fact-tip') && !e.target.closest('.algo-header')) {
+      document.querySelectorAll('.algo-fact-tip').forEach(t => t.remove());
+    }
+  });
 });
 </script>
 </body>
