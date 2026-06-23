@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sorting Algorithm Visualizer</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap');
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0a0e1a; --surface: #111827; --surface2: #1a2332; --border: #1e293b;
+    --text: #e2e8f0; --text-dim: #64748b; --accent: #06b6d4; --accent2: #8b5cf6;
+    --green: #10b981; --red: #ef4444; --yellow: #f59e0b; --pink: #ec4899; --orange: #f97316;
+  }
+  body {
+    font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text);
+    min-height: 100vh; overflow-x: hidden;
+  }
+  body::before {
+    content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background-image: linear-gradient(rgba(6,182,212,.03) 1px, transparent 1px), linear-gradient(90deg, rgba(6,182,212,.03) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+  .container { position: relative; z-index: 1; max-width: 1400px; margin: 0 auto; padding: 16px; }
+  header {
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+    padding: 16px 24px; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; margin-bottom: 16px;
+  }
+  .logo { display: flex; align-items: center; gap: 12px; }
+  .logo-icon {
+    width: 40px; height: 40px; background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 10px; display: flex; align-items: center; justify-content: center;
+    font-weight: 900; font-size: 18px; color: #fff;
+  }
+  .logo h1 { font-size: 20px; font-weight: 700; background: linear-gradient(135deg, #e2e8f0, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .logo .sub { font-size: 12px; color: var(--text-dim); font-weight: 400; -webkit-text-fill-color: var(--text-dim); }
+  .controls { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .controls label { font-size: 12px; font-weight: 600; color: var(--text-dim); text-transform: uppercase; letter-spacing: .05em; }
+  .btn {
+    padding: 8px 20px; border: none; border-radius: 8px; font-family: inherit; font-size: 13px; font-weight: 600;
+    cursor: pointer; transition: all .15s; display: inline-flex; align-items: center; gap: 6px;
+  }
+  .btn-primary { background: linear-gradient(135deg, var(--accent), #0891b2); color: #fff; }
+  .btn-primary:hover { filter: brightness(1.15); transform: translateY(-1px); }
+  .btn-danger { background: linear-gradient(135deg, var(--red), #dc2626); color: #fff; }
+  .btn-danger:hover { filter: brightness(1.15); transform: translateY(-1px); }
+  .btn-ghost { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+  .btn-ghost:hover { background: #1e293b; }
+  .btn:disabled { opacity: .4; cursor: not-allowed; transform: none !important; }
+  select, input[type="range"] { background: var(--surface2); color: var(--text); border: 1px solid var(--border); border-radius: 6px; padding: 6px 10px; font-family: inherit; font-size: 13px; }
+  input[type="range"] { width: 100px; padding: 0; accent-color: var(--accent); }
+  .speed-display { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--accent); min-width: 32px; text-align: center; }
+  .viz-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 16px; }
+  @media (max-width: 900px) { .viz-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 500px) { .viz-grid { grid-template-columns: 1fr; } }
+  .algo-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; transition: border-color .2s, box-shadow .2s; }
+  .algo-card.running { border-color: var(--accent); box-shadow: 0 0 20px rgba(6,182,212,.1); }
+  .algo-card.done { border-color: var(--green); box-shadow: 0 0 20px rgba(16,185,129,.1); }
+  .algo-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .algo-name { font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+  .algo-name .badge { font-size: 9px; font-weight: 600; padding: 2px 6px; border-radius: 4px; background: var(--surface2); color: var(--text-dim); }
+  .algo-big-o { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-dim); }
+  .algo-stats { display: flex; gap: 12px; margin-bottom: 8px; font-size: 11px; color: var(--text-dim); }
+  .algo-stats span { display: flex; align-items: center; gap: 4px; }
+  .algo-stats .stat-val { font-family: 'JetBrains Mono', monospace; color: var(--text); font-weight: 600; }
+  .chart-area { position: relative; height: 220px; border-radius: 8px; background: var(--bg); overflow: hidden; border: 1px solid var(--border); }
+  .chart-area canvas { width: 100%; height: 100%; display: block; }
+  .algo-color-bar { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
+  .legend { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px 20px; display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 16px; font-size: 12px; }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+  footer { text-align: center; font-size: 12px; color: var(--text-dim); padding: 24px 0; margin-top: 8px; }
+  footer a { color: var(--accent); text-decoration: none; }
+  footer a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="logo">
+      <div class="logo-icon">Sv</div>
+      <div><h1>Sorting Visualizer <span class="sub">· side-by-side comparison</span></h1></div>
+    </div>
+    <div class="controls">
+      <label>Size</label>
+      <select id="sizeSelect">
+        <option value="10">10</option><option value="20">20</option><option value="30">30</option>
+        <option value="50" selected>50</option><option value="80">80</option><option value="100">100</option>
+      </select>
+      <label>Speed</label>
+      <input type="range" id="speedSlider" min="1" max="100" value="50">
+      <span class="speed-display" id="speedDisplay">50x</span>
+      <button class="btn btn-primary" id="startBtn">▶ Run All</button>
+      <button class="btn btn-danger" id="resetBtn">↺ Reset</button>
+    </div>
+  </header>
+  <div class="viz-grid" id="vizGrid"></div>
+  <div class="legend">
+    <div class="legend-item"><span class="legend-dot" style="background:var(--accent)"></span> Comparing</div>
+    <div class="legend-item"><span class="legend-dot" style="background:var(--green)"></span> Sorted</div>
+    <div class="legend-item"><span class="legend-dot" style="background:var(--pink)"></span> Swapping</div>
+    <div class="legend-item"><span class="legend-dot" style="background:var(--yellow)"></span> Pivot</div>
+    <div class="legend-item"><span class="legend-dot" style="background:var(--orange)"></span> Merging</div>
+    <div class="legend-item"><span class="legend-dot" style="background:var(--text-dim)"></span> Unsorted</div>
+  </div>
+  <footer>made with ❤️ · <a href="https://github.com/nwfella/sorting-algorithms-viz" target="_blank">GitHub</a></footer>
+</div>
+<script>
+const ALGOS = [
+  { id:'bubble', name:'Bubble Sort', badge:'O(n²)', complexity:'O(n²)', color:'#06b6d4',
+    sort: function*(arr) {
+      const a = arr.slice(); const n = a.length;
+      for (let i = 0; i < n - 1; i++) {
+        let swapped = false;
+        for (let j = 0; j < n - 1 - i; j++) {
+          yield { type:'compare', data:a, i:j, j:j+1 };
+          if (a[j] > a[j+1]) { yield { type:'swap', data:a, i:j, j:j+1 }; [a[j],a[j+1]]=[a[j+1],a[j]]; swapped = true; }
+        }
+        if (!swapped) break;
+      }
+      return a;
+    }
+  },
+  { id:'selection', name:'Selection Sort', badge:'O(n²)', complexity:'O(n²)', color:'#8b5cf6',
+    sort: function*(arr) {
+      const a = arr.slice(); const n = a.length;
+      for (let i = 0; i < n - 1; i++) {
+        let minIdx = i;
+        for (let j = i + 1; j < n; j++) {
+          yield { type:'compare', data:a, i:minIdx, j };
+          if (a[j] < a[minIdx]) minIdx = j;
+        }
+        if (minIdx !== i) { yield { type:'swap', data:a, i, j:minIdx }; [a[i],a[minIdx]]=[a[minIdx],a[i]]; }
+      }
+      return a;
+    }
+  },
+  { id:'insertion', name:'Insertion Sort', badge:'O(n²)', complexity:'O(n²)', color:'#10b981',
+    sort: function*(arr) {
+      const a = arr.slice(); const n = a.length;
+      for (let i = 1; i < n; i++) {
+        const key = a[i]; let j = i - 1;
+        yield { type:'compare', data:a, i, j };
+        while (j >= 0 && a[j] > key) { yield { type:'swap', data:a, i:j+1, j }; a[j+1]=a[j]; j--; }
+        a[j+1] = key;
+      }
+      return a;
+    }
+  },
+  { id:'merge', name:'Merge Sort', badge:'O(n log n)', complexity:'O(n log n)', color:'#f59e0b',
+    sort: function*(arr) {
+      const a = arr.slice();
+      function* ms(lo, hi) { if (lo >= hi) return; const mid = (lo+hi)>>>1; yield* ms(lo,mid); yield* ms(mid+1,hi); yield* mg(lo,mid,hi); }
+      function* mg(lo,mid,hi) {
+        const L = a.slice(lo,mid+1), R = a.slice(mid+1,hi+1); let i=0,j=0,k=lo;
+        while (i<L.length && j<R.length) { yield { type:'merge-cmp', data:a, i:lo+i, j:mid+1+j }; if (L[i]<=R[j]) a[k++]=L[i++]; else a[k++]=R[j++]; yield { type:'merge-set', data:a, i:k-1 }; }
+        while (i<L.length) { a[k++]=L[i++]; yield { type:'merge-set', data:a, i:k-1 }; }
+        while (j<R.length) { a[k++]=R[j++]; yield { type:'merge-set', data:a, i:k-1 }; }
+      }
+      yield* ms(0, a.length-1);
+      return a;
+    }
+  },
+  { id:'quick', name:'Quick Sort', badge:'O(n log n)', complexity:'O(n log n)', color:'#ec4899',
+    sort: function*(arr) {
+      const a = arr.slice();
+      function* qs(lo, hi) { if (lo>=hi) return; const p = yield* pt(lo,hi); yield* qs(lo,p-1); yield* qs(p+1,hi); }
+      function* pt(lo, hi) {
+        const pv = a[hi]; let i = lo-1; yield { type:'pivot', data:a, i:hi };
+        for (let j=lo; j<hi; j++) { yield { type:'compare', data:a, i:j, j:hi }; if (a[j]<pv) { i++; yield { type:'swap', data:a, i, j }; [a[i],a[j]]=[a[j],a[i]]; } }
+        yield { type:'swap', data:a, i:i+1, j:hi }; [a[i+1],a[hi]]=[a[hi],a[i+1]]; return i+1;
+      }
+      yield* qs(0, a.length-1);
+      return a;
+    }
+  }
+];
+const C = { compare:'#06b6d4', swap:'#ec4899', pivot:'#f59e0b', merge:'#f97316', dflt:'#334155' };
+let S = { arr:[], running:false, spd:50, gens:[], fin:[false,false,false,false,false], tos:[], stats:ALGOS.map(()=>({cmp:0,swp:0})), t0:null, ela:[0,0,0,0,0], done:false };
+
+function bc(ev) {
+  const clr = new Array(S.arr.length).fill(C.dflt);
+  if (!ev) return clr;
+  const t=ev.type;
+  if (t==='swap'||t==='compare') { if(ev.i!==void 0)clr[ev.i]=C.compare; if(ev.j!==void 0)clr[ev.j]=t==='swap'?C.swap:C.compare; }
+  if (t==='pivot'&&ev.i!==void 0) clr[ev.i]=C.pivot;
+  if (t==='merge-cmp') { if(ev.i!==void 0)clr[ev.i]=C.compare; if(ev.j!==void 0)clr[ev.j]=C.merge; }
+  if (t==='merge-set'&&ev.i!==void 0) clr[ev.i]=C.merge;
+  return clr;
+}
+function dk(h,f){const r=parseInt(h.slice(1,3),16),g=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16);return `rgb(${(r*(1-f))|0},${(g*(1-f))|0},${(b*(1-f))|0})`;}
+function draw(cv, data, ev) {
+  const r = cv.parentElement.getBoundingClientRect();
+  const dpr = window.devicePixelRatio||1, w=r.width, h=r.height;
+  cv.width=w*dpr; cv.height=h*dpr; cv.style.width=w+'px'; cv.style.height=h+'px';
+  const ctx=cv.getContext('2d'); ctx.scale(dpr,dpr); ctx.clearRect(0,0,w,h);
+  const n=data.length; if(!n)return;
+  const cs=bc(ev), mn=Math.min(...data), mx=Math.max(...data), mg=mx-mn||1;
+  const gp=1, bw=(w-(n-1)*gp)/n, pt=16, pb=16, ch=h-pt-pb;
+  for(let i=0;i<n;i++){
+    const v=(data[i]-mn)/mg, bh=v*ch, x=i*(bw+gp), y=h-pb-bh, r2=Math.min(bw/2,3), cl=cs[i];
+    ctx.beginPath(); ctx.moveTo(x,h-pb); ctx.lineTo(x,y+r2); ctx.quadraticCurveTo(x,y,x+r2,y);
+    ctx.lineTo(x+bw-r2,y); ctx.quadraticCurveTo(x+bw,y,x+bw,y+r2); ctx.lineTo(x+bw,h-pb); ctx.closePath();
+    if(cl!==C.dflt){ctx.shadowColor=cl;ctx.shadowBlur=8;}
+    const gd=ctx.createLinearGradient(x,y,x,h-pb);
+    if(cl===C.dflt){gd.addColorStop(0,'#475569');gd.addColorStop(1,'#1e293b');}
+    else{gd.addColorStop(0,cl);gd.addColorStop(1,dk(cl,.4));}
+    ctx.fillStyle=gd; ctx.fill(); ctx.shadowBlur=0;
+  }
+  if(S.done){
+    ctx.fillStyle='rgba(16,185,129,.12)'; ctx.fillRect(0,0,w,h);
+    ctx.fillStyle='#10b981'; ctx.font='bold 14px Inter,system-ui,sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText('✓ Sorted',w/2,h/2);
+  }
+}
+function build(){
+  const g=document.getElementById('vizGrid'); g.innerHTML='';
+  ALGOS.forEach((a,i)=>{
+    const c=document.createElement('div'); c.className='algo-card'; c.id='card-'+i;
+    c.innerHTML=`<div class="algo-header"><div class="algo-name"><span class="algo-color-bar" style="background:${a.color}"></span>${a.name}<span class="badge">${a.badge}</span></div><div class="algo-big-o">${a.complexity}</div></div><div class="algo-stats"><span>cmp <span class="stat-val" id="cmp-${i}">0</span></span><span>swp <span class="stat-val" id="swp-${i}">0</span></span><span>⏱ <span class="stat-val" id="time-${i}">—</span></span></div><div class="chart-area"><canvas id="canvas-${i}"></canvas></div>`;
+    g.appendChild(c);
+  });
+}
+function genArr(n){const a=[];for(let i=0;i<n;i++)a.push(Math.floor(Math.random()*180)+20);return a;}
+function reset(){
+  S.running=false; S.done=false; S.fin=[false,false,false,false,false]; S.tos.forEach(t=>clearTimeout(t)); S.tos=[]; S.ela=[0,0,0,0,0]; S.stats=ALGOS.map(()=>({cmp:0,swp:0}));
+  S.arr=genArr(parseInt(document.getElementById('sizeSelect').value));
+  ALGOS.forEach((_,i)=>{const c=document.getElementById('card-'+i);if(c)c.className='algo-card';const e1=document.getElementById('cmp-'+i);if(e1)e1.textContent='0';const e2=document.getElementById('swp-'+i);if(e2)e2.textContent='0';const e3=document.getElementById('time-'+i);if(e3)e3.textContent='—';const cv=document.getElementById('canvas-'+i);if(cv)draw(cv,S.arr,null);});
+  document.getElementById('startBtn').disabled=false;
+}
+function go(){
+  if(S.running)return; S.running=true; S.done=false; S.fin=[false,false,false,false,false]; S.t0=performance.now(); S.stats=ALGOS.map(()=>({cmp:0,swp:0}));
+  document.getElementById('startBtn').disabled=true; S.gens=ALGOS.map(a=>a.sort(S.arr));
+  function step(){
+    if(!S.running)return;
+    if(S.fin.every(f=>f)){
+      S.running=false; S.done=true; document.getElementById('startBtn').disabled=false;
+      const sorted=S.arr.slice().sort((a,b)=>a-b);
+      ALGOS.forEach((_,i)=>{const cv=document.getElementById('canvas-'+i);if(cv)draw(cv,sorted,null);});
+      return;
+    }
+    const msp = Math.max(1, Math.round(S.spd/5));
+    for(let i=0;i<ALGOS.length;i++){
+      if(S.fin[i])continue; const gen=S.gens[i]; let lastEv=null;
+      for(let s=0;s<msp;s++){const r=gen.next();if(r.done){S.fin[i]=true;S.ela[i]=performance.now()-S.t0;const c=document.getElementById('card-'+i);if(c)c.className='algo-card done';const e3=document.getElementById('time-'+i);if(e3)e3.textContent=S.ela[i].toFixed(0)+'ms';const cv=document.getElementById('canvas-'+i);if(cv)draw(cv,r.value,null);break;}lastEv=r.value;}
+      if(lastEv){
+        if(lastEv.type==='compare'||lastEv.type==='merge-cmp')S.stats[i].cmp++;
+        else if(lastEv.type==='swap')S.stats[i].swp++;
+        const cv=document.getElementById('canvas-'+i);if(cv)draw(cv,lastEv.data,lastEv);
+        const c=document.getElementById('card-'+i);if(c)c.className='algo-card running';
+      }
+    }
+    for(let i=0;i<ALGOS.length;i++){const e1=document.getElementById('cmp-'+i);if(e1)e1.textContent=S.stats[i].cmp;const e2=document.getElementById('swp-'+i);if(e2)e2.textContent=S.stats[i].swp;}
+    if(S.running){const iv=Math.max(1,60-(S.spd/100)*55);S.tos.push(setTimeout(step,iv));}
+  }
+  step();
+}
+document.addEventListener('DOMContentLoaded',()=>{
+  build();
+  document.getElementById('sizeSelect').addEventListener('change',()=>{if(!S.running)reset();});
+  document.getElementById('speedSlider').addEventListener('input',e=>{S.spd=parseInt(e.target.value);document.getElementById('speedDisplay').textContent=S.spd+'x';});
+  document.getElementById('startBtn').addEventListener('click',go);
+  document.getElementById('resetBtn').addEventListener('click',()=>{if(S.running){S.running=false;S.tos.forEach(t=>clearTimeout(t));S.tos=[];}reset();});
+  reset();
+  let rt;window.addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>{ALGOS.forEach((_,i)=>{const cv=document.getElementById('canvas-'+i);if(cv)draw(cv,S.arr,null);});},200);});
+});
+</script>
+</body>
+</html>
