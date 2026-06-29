@@ -22,7 +22,6 @@
     background-size: 48px 48px;
   }
   .container { position: relative; z-index: 1; max-width: 1500px; margin: 0 auto; padding: 12px; }
-
   header {
     display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;
     padding: 12px 18px; background: var(--surface); border: 1px solid var(--border);
@@ -52,27 +51,18 @@
   input[type="range"] { width: 80px; padding: 0; accent-color: var(--accent); }
   .speed-display { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--accent); min-width: 28px; text-align: center; }
   .active-count { font-size: 11px; color: var(--text-dim); font-family: 'JetBrains Mono', monospace; }
-
   .viz-rows { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
   .viz-row { position: relative; }
-
   .viz-grid {
-    display: flex;
-    gap: 10px;
-    overflow-x: auto;
-    overflow-y: hidden;
-    scroll-snap-type: x mandatory;
-    scroll-behavior: smooth;
-    -webkit-overflow-scrolling: touch;
-    padding: 4px 0;
-    scrollbar-width: thin;
-    scrollbar-color: var(--border) transparent;
+    display: flex; gap: 10px; overflow-x: auto; overflow-y: hidden;
+    scroll-snap-type: x mandatory; scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch; padding: 4px 0;
+    scrollbar-width: thin; scrollbar-color: var(--border) transparent;
   }
   .viz-grid::-webkit-scrollbar { height: 5px; }
   .viz-grid::-webkit-scrollbar-track { background: transparent; }
   .viz-grid::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
   .viz-grid::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
-
   .scroll-btn {
     position: absolute; top: 50%; transform: translateY(-50%);
     width: 28px; height: 28px; border-radius: 50%;
@@ -86,27 +76,22 @@
   .scroll-btn-left { left: -4px; }
   .scroll-btn-right { right: -4px; }
   @media (min-width: 1400px) { .scroll-btn { display: none; } }
-
   .algo-card {
     flex: 0 0 270px; min-width: 240px;
     background: var(--surface); border: 1px solid var(--border);
     border-radius: 10px; padding: 10px; display: flex; flex-direction: column;
     transition: flex .3s ease, opacity .3s ease, border-color .2s, box-shadow .2s;
-    scroll-snap-align: start;
-    opacity: 1;
-    position: relative;
+    scroll-snap-align: start; opacity: 1;
   }
   .algo-card.inactive {
     flex: 0 0 0 !important; min-width: 0 !important; max-width: 0 !important;
-    padding: 0; margin: 0; border: none; overflow: hidden; opacity: 0;
-    pointer-events: none;
+    padding: 0; margin: 0; border: none; overflow: hidden; opacity: 0; pointer-events: none;
   }
   @media (min-width: 1400px) {
     .viz-grid { flex-wrap: nowrap; justify-content: center; }
     .algo-card { flex: 1 1 0; min-width: 0; }
     .algo-card.inactive { flex: 0 0 0 !important; min-width: 0 !important; }
   }
-
   .algo-toggle {
     width: 20px; height: 20px; border-radius: 50%;
     border: 2px solid var(--border); background: transparent;
@@ -117,7 +102,6 @@
   .algo-toggle.active { border-color: inherit; background: inherit; box-shadow: 0 0 6px; }
   .algo-toggle.active::after { content: '✓'; color: #fff; font-weight: 700; font-size: 11px; }
   .algo-toggle:hover { transform: scale(1.15); }
-
   .algo-card.running { border-color: var(--accent); box-shadow: 0 0 16px rgba(6,182,212,.1); }
   .algo-card.done { border-color: var(--green); box-shadow: 0 0 16px rgba(16,185,129,.1); }
   .algo-header { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
@@ -132,16 +116,11 @@
   @media (min-height: 900px) { .chart-area { height: 190px; } }
   .chart-area canvas { width: 100%; height: 100%; display: block; }
   .algo-color-bar { width: 6px; height: 6px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
-
   .dot-nav { display: flex; justify-content: center; gap: 6px; margin-top: 6px; }
-  .dot-nav .dot {
-    width: 8px; height: 8px; border-radius: 50%;
-    background: var(--border); cursor: pointer; transition: all .2s; border: none;
-  }
+  .dot-nav .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); cursor: pointer; transition: all .2s; border: none; }
   .dot-nav .dot.active { background: var(--accent); width: 20px; border-radius: 4px; }
   .dot-nav .dot.hidden-dot { display: none; }
   .dot-nav .dot:hover { background: var(--text-dim); }
-
   .legend {
     background: var(--surface); border: 1px solid var(--border);
     border-radius: 10px; padding: 10px 16px;
@@ -154,33 +133,21 @@
   footer a { color: var(--accent); text-decoration: none; }
   footer a:hover { text-decoration: underline; }
 
-  /* ===== GLOBAL TOOLTIP (fixed position) ===== */
+  /* ===== IN-CARD TOOLTIP (overlays chart area) ===== */
   .algo-fact-tip {
-    position: fixed;
-    width: 280px;
-    max-width: 90vw;
-    background: #0f172a;
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 12px 14px;
-    font-size: 11px;
-    line-height: 1.55;
-    color: var(--text);
-    pointer-events: none;
-    opacity: 0;
+    position: absolute; inset: 0; z-index: 5;
+    background: rgba(10, 14, 26, .96);
+    border-radius: 6px; padding: 12px 14px;
+    font-size: 11px; line-height: 1.5;
+    color: var(--text); opacity: 0;
     transition: opacity .12s ease;
-    z-index: 1000;
-    box-shadow: 0 8px 32px rgba(0,0,0,.5);
-    word-wrap: break-word;
+    pointer-events: none;
+    display: flex; flex-direction: column;
+    justify-content: center; overflow-y: auto;
   }
   .algo-fact-tip.visible { opacity: 1; }
-  .algo-fact-tip .tip-title {
-    font-weight: 700; font-size: 12px; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;
-  }
-  .algo-fact-tip .tip-title .tip-badge {
-    font-size: 9px; font-weight: 600; padding: 1px 5px; border-radius: 3px;
-    background: var(--surface2); color: var(--text-dim);
-  }
+  .algo-fact-tip .tip-title { font-weight: 700; font-size: 12px; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+  .algo-fact-tip .tip-title .tip-badge { font-size: 9px; font-weight: 600; padding: 1px 5px; border-radius: 3px; background: rgba(255,255,255,.08); color: var(--text-dim); }
   .algo-fact-tip .tip-body { color: #94a3b8; }
 </style>
 </head>
@@ -205,9 +172,7 @@
       <span class="active-count" id="activeCount">10/10</span>
     </div>
   </header>
-
   <div class="viz-rows" id="vizRows"></div>
-
   <div class="legend">
     <div class="legend-item"><span class="legend-dot" style="background:var(--accent)"></span> Comparing</div>
     <div class="legend-item"><span class="legend-dot" style="background:var(--green)"></span> Sorted</div>
@@ -220,9 +185,7 @@
 </div>
 
 <script>
-// ============ 10 ALGORITHMS with historical facts ============
 const ALGOS = [
-  // ---- ROW 0: Classic 5 ----
   { id:'bubble', name:'Bubble Sort', badge:'O(n²)', complexity:'O(n²)', color:'#06b6d4',
     fact:'The name "bubble sort" was coined by Kenneth E. Iverson in his 1962 book "A Programming Language" (APL). Smaller elements "bubble" to the top like bubbles in a glass of champagne. It was first analyzed by Edward H. Friend in 1956.',
     sort: function*(arr) {
@@ -254,7 +217,7 @@ const ALGOS = [
     }
   },
   { id:'insertion', name:'Insertion Sort', badge:'O(n²)', complexity:'O(n²)', color:'#10b981',
-    fact:'Insertion Sort is how most people sort playing cards in their hands — take one card, insert it into the correct position. Python\'s built-in sort (Timsort) uses Insertion Sort for small subarrays because it\'s faster than O(n log n) algorithms on tiny data sets.',
+    fact:'Insertion Sort is how most people sort playing cards in their hands — take one card, insert it into the correct position. Python built-in sort (Timsort) uses Insertion Sort for small subarrays because it is faster than O(n log n) algorithms on tiny data sets.',
     sort: function*(arr) {
       const a = arr.slice(); const n = a.length;
       for (let i = 1; i < n; i++) {
@@ -282,7 +245,7 @@ const ALGOS = [
     }
   },
   { id:'quick', name:'Quick Sort', badge:'O(n log n)', complexity:'O(n log n)', color:'#ec4899',
-    fact:'Quick Sort was developed by Tony Hoare in 1959 while he was a visiting student at Moscow State University, working on machine translation. He needed to sort English words efficiently. Hoare later won the Turing Award (1980) — computing\'s Nobel Prize.',
+    fact:'Quick Sort was developed by Tony Hoare in 1959 while he was a visiting student at Moscow State University, working on machine translation. He needed to sort English words efficiently. Hoare later won the Turing Award (1980) — computing Nobel Prize.',
     sort: function*(arr) {
       const a = arr.slice();
       function* qs(lo, hi) { if (lo>=hi) return; const p = yield* pt(lo,hi); yield* qs(lo,p-1); yield* qs(p+1,hi); }
@@ -295,9 +258,8 @@ const ALGOS = [
       return a;
     }
   },
-  // ---- ROW 1: Fresh 5 ----
   { id:'heap', name:'Heap Sort', badge:'O(n log n)', complexity:'O(n log n)', color:'#ff6b6b',
-    fact:'Heap Sort was invented by J. W. J. Williams in 1964. Robert W. Floyd improved it the very same year, adding the O(n) heap construction. The heap data structure was originally designed specifically for sorting — not for priority queues as it\'s commonly used today.',
+    fact:'Heap Sort was invented by J. W. J. Williams in 1964. Robert W. Floyd improved it the very same year, adding the O(n) heap construction. The heap data structure was originally designed specifically for sorting — not for priority queues as it is commonly used today.',
     sort: function*(arr) {
       const a = arr.slice(); const n = a.length;
       function* siftDown(heapSize, root) {
@@ -312,7 +274,7 @@ const ALGOS = [
     }
   },
   { id:'cocktail', name:'Cocktail Shaker', badge:'O(n²)', complexity:'O(n²)', color:'#a29bfe',
-    fact:'Cocktail Shaker (or bidirectional bubble sort) was first formally described by Donald Knuth in The Art of Computer Programming (1973). It\'s called a "shaker" because it passes left-to-right then right-to-left — like a bartender shaking a cocktail.',
+    fact:'Cocktail Shaker (or bidirectional bubble sort) was first formally described by Donald Knuth in The Art of Computer Programming (1973). It is called a "shaker" because it passes left-to-right then right-to-left — like a bartender shaking a cocktail.',
     sort: function*(arr) {
       const a = arr.slice(); let lo=0, hi=a.length-1, swapped=true;
       while (swapped) {
@@ -326,7 +288,7 @@ const ALGOS = [
     }
   },
   { id:'radix', name:'Radix Sort (LSD)', badge:'O(nk)', complexity:'O(nk)', color:'#55efc4',
-    fact:'Radix Sort predates electronic computers entirely. Herman Hollerith used it in 1887 to sort punched cards for the US Census — his tabulating machine launched IBM. It\'s one of the oldest computational sorting methods in human history.',
+    fact:'Radix Sort predates electronic computers entirely. Herman Hollerith used it in 1887 to sort punched cards for the US Census — his tabulating machine launched IBM. It is one of the oldest computational sorting methods in human history.',
     sort: function*(arr) {
       const a = arr.slice(), max = Math.max(...a), digits = max.toString().length;
       for (let pos=0; pos<digits; pos++) {
@@ -339,7 +301,7 @@ const ALGOS = [
     }
   },
   { id:'shell', name:'Shell Sort', badge:'O(n·log²n)', complexity:'O(n·log²n)', color:'#fd79a8',
-    fact:'Shell Sort was invented by Donald Shell in 1959 — and it was the first sorting algorithm to break the mythical O(n²) barrier. The choice of gap sequence still isn\'t fully solved: the best known gap sequences are an active area of research.',
+    fact:'Shell Sort was invented by Donald Shell in 1959 — and it was the first sorting algorithm to break the mythical O(n²) barrier. The choice of gap sequence still is not fully solved: the best known gap sequences are an active area of research.',
     sort: function*(arr) {
       const a = arr.slice(), n = a.length;
       for (let gap=Math.floor(n/2); gap>0; gap=Math.floor(gap/2)) {
@@ -372,8 +334,7 @@ let S = { arr:[], running:false, spd:50, gens:[], fin:Array(TOTAL).fill(false), 
 
 function bc(ev) {
   const clr = new Array(S.arr.length).fill(C.dflt);
-  if (!ev) return clr;
-  const t=ev.type;
+  if (!ev) return clr; const t=ev.type;
   if (t==='swap'||t==='compare') { if(ev.i!==void 0)clr[ev.i]=C.compare; if(ev.j!==void 0)clr[ev.j]=t==='swap'?C.swap:C.compare; }
   if (t==='pivot'&&ev.i!==void 0) clr[ev.i]=C.pivot;
   if (t==='merge-cmp') { if(ev.i!==void 0)clr[ev.i]=C.compare; if(ev.j!==void 0)clr[ev.j]=C.merge; }
@@ -385,8 +346,7 @@ function dk(h,f){const r=parseInt(h.slice(1,3),16),g=parseInt(h.slice(3,5),16),b
 function draw(cv, data, ev) {
   const r = cv.parentElement.getBoundingClientRect();
   const dpr = window.devicePixelRatio||1, w=r.width, h=r.height;
-  if (!w || !h) return;
-  cv.width=w*dpr; cv.height=h*dpr; cv.style.width=w+'px'; cv.style.height=h+'px';
+  if (!w || !h) return; cv.width=w*dpr; cv.height=h*dpr; cv.style.width=w+'px'; cv.style.height=h+'px';
   const ctx=cv.getContext('2d'); ctx.scale(dpr,dpr); ctx.clearRect(0,0,w,h);
   const n=data.length; if(!n)return;
   const cs=bc(ev), mn=Math.min(...data), mx=Math.max(...data), mg=mx-mn||1;
@@ -428,69 +388,8 @@ function toggleAlgo(idx) {
     toggle.style.borderColor = '';
     toggle.style.background = '';
   }
-  updateActiveCount();
-  updateAllDots();
+  updateActiveCount(); updateAllDots();
   setTimeout(updateAllScrollButtons, 350);
-}
-
-// ===== TOOLTIP (single global element, fixed position) =====
-const factTip = document.createElement('div');
-factTip.className = 'algo-fact-tip';
-factTip.id = 'globalFactTip';
-document.body.appendChild(factTip);
-
-let tooltipTimeout = null;
-
-function showFact(idx) {
-  const a = ALGOS[idx];
-  factTip.innerHTML = `
-    <div class="tip-title" style="color:${a.color}">
-      <span class="algo-color-bar" style="background:${a.color};width:8px;height:8px"></span>
-      ${a.name}
-      <span class="tip-badge">${a.complexity}</span>
-    </div>
-    <div class="tip-body">${a.fact}</div>
-  `;
-
-  const card = document.getElementById('card-'+idx);
-  const rect = card.getBoundingClientRect();
-  const tipW = 280;
-  const gap = 10;
-  const pad = 10;
-
-  // Position to the RIGHT of the card, vertically centered
-  let left = rect.right + gap;
-  let top = rect.top + rect.height / 2;
-  let xform = 'translateY(-50%)';
-
-  // If right side overflows, flip to the LEFT
-  if (left + tipW > window.innerWidth - pad) {
-    left = rect.left - gap;
-    xform = 'translateY(-50%) translateX(-100%)';
-
-    // If left side also doesn't fit (narrow screen), center below instead
-    if (rect.left < pad + tipW + gap) {
-      left = rect.left + rect.width / 2;
-      top = rect.bottom + gap;
-      xform = 'translateX(-50%)';
-    }
-  }
-
-  // Keep within viewport vertically
-  if (top - 100 < pad) top = pad + 100;
-  if (top + 100 > window.innerHeight - pad) top = window.innerHeight - pad - 100;
-
-  factTip.style.left = left + 'px';
-  factTip.style.top = top + 'px';
-  factTip.style.transform = xform;
-  factTip.classList.add('visible');
-  clearTimeout(tooltipTimeout);
-}
-
-function hideFact() {
-  tooltipTimeout = setTimeout(() => {
-    factTip.classList.remove('visible');
-  }, 80);
 }
 
 function buildUI() {
@@ -514,13 +413,27 @@ function buildUI() {
         </div>
         <div class="algo-stats"><span>cmp <span class="stat-val" id="cmp-${i}">0</span></span><span>swp <span class="stat-val" id="swp-${i}">0</span></span><span>⏱ <span class="stat-val" id="time-${i}">—</span></span></div>
         <div class="chart-area"><canvas id="canvas-${i}"></canvas></div>`;
+
+      // Build per-card tooltip overlay inside chart area
+      const chartArea = c.querySelector('.chart-area');
+      const tip = document.createElement('div');
+      tip.className = 'algo-fact-tip';
+      tip.innerHTML = `
+        <div class="tip-title" style="color:${a.color}">
+          <span class="algo-color-bar" style="background:${a.color};width:8px;height:8px"></span>
+          ${a.name}
+          <span class="tip-badge">${a.complexity}</span>
+        </div>
+        <div class="tip-body">${a.fact}</div>`;
+      chartArea.appendChild(tip);
+
+      // Show tooltip on hover
+      c.addEventListener('mouseenter', () => tip.classList.add('visible'));
+      c.addEventListener('mouseleave', () => tip.classList.remove('visible'));
+
       grid.appendChild(c);
 
       c.querySelector('.algo-toggle').addEventListener('click', (e) => { e.stopPropagation(); toggleAlgo(i); });
-
-      // Hover card → show/hide historical fact tooltip
-      c.addEventListener('mouseenter', () => showFact(i));
-      c.addEventListener('mouseleave', hideFact);
     });
 
     const sl = document.createElement('button'); sl.className = 'scroll-btn scroll-btn-left'; sl.id = 'sl'+ri;
@@ -534,7 +447,6 @@ function buildUI() {
       const d = document.createElement('button'); d.className = 'dot' + (j===0?' active':'');
       d.dataset.row = ri; d.dataset.col = j;
       d.addEventListener('click', () => {
-        const g = document.getElementById('vizGrid'+ri);
         const card = document.getElementById('card-'+rows[ri][j]);
         if (card) card.scrollIntoView({ behavior:'smooth', block:'nearest', inline:'start' });
       });
@@ -572,25 +484,17 @@ function updateAllDots() {
   updateRowDots(0); updateRowDots(1);
   document.querySelectorAll('.dot-nav').forEach((nav, ri) => {
     const start = ri===0?0:5;
-    nav.querySelectorAll('.dot').forEach((d, col) => {
-      d.classList.toggle('hidden-dot', !S.active[start+col]);
-    });
+    nav.querySelectorAll('.dot').forEach((d, col) => { d.classList.toggle('hidden-dot', !S.active[start+col]); });
   });
 }
 
 function updateScrollButtonsFor(ri) {
-  if (window.innerWidth >= 1400) {
-    document.getElementById('sl'+ri).classList.remove('visible');
-    document.getElementById('sr'+ri).classList.remove('visible');
-    return;
-  }
+  if (window.innerWidth >= 1400) { document.getElementById('sl'+ri).classList.remove('visible'); document.getElementById('sr'+ri).classList.remove('visible'); return; }
   const grid = document.getElementById('vizGrid'+ri);
-  const sl = document.getElementById('sl'+ri);
-  const sr = document.getElementById('sr'+ri);
   const canL = grid.scrollLeft > 10;
   const canR = grid.scrollLeft < grid.scrollWidth - grid.clientWidth - 10;
-  sl.classList.toggle('visible', canL);
-  sr.classList.toggle('visible', canR);
+  document.getElementById('sl'+ri).classList.toggle('visible', canL);
+  document.getElementById('sr'+ri).classList.toggle('visible', canR);
 }
 function updateAllScrollButtons() { updateScrollButtonsFor(0); updateScrollButtonsFor(1); }
 
@@ -653,13 +557,6 @@ document.addEventListener('DOMContentLoaded',()=>{
 
   let rt;
   window.addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>{ALGOS.forEach((_,i)=>{if(!S.active[i])return;const cv=document.getElementById('canvas-'+i);if(cv)draw(cv,S.arr,null);});},200);});
-
-  // Close tooltip if user clicks outside any card
-  document.addEventListener('click', (e) => {
-    if (!e.target.closest('.algo-card') && !e.target.closest('.algo-fact-tip')) {
-      factTip.classList.remove('visible');
-    }
-  });
 });
 </script>
 </body>
