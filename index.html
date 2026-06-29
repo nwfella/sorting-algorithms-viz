@@ -454,22 +454,35 @@ function showFact(idx) {
 
   const card = document.getElementById('card-'+idx);
   const rect = card.getBoundingClientRect();
-  let left = rect.left + rect.width / 2;
-  let top = rect.bottom + 8;
-
-  // Keep within viewport
   const tipW = 280;
+  const gap = 10;
   const pad = 10;
-  if (left - tipW/2 < pad) left = pad + tipW/2;
-  if (left + tipW/2 > window.innerWidth - pad) left = window.innerWidth - pad - tipW/2;
-  // If offscreen at top (scrolled card), flip above
-  if (top + 200 > window.innerHeight) top = rect.top - 8;
-  // But if above-screen too, just stick to top
-  if (top < 10) top = 10;
+
+  // Position to the RIGHT of the card, vertically centered
+  let left = rect.right + gap;
+  let top = rect.top + rect.height / 2;
+  let xform = 'translateY(-50%)';
+
+  // If right side overflows, flip to the LEFT
+  if (left + tipW > window.innerWidth - pad) {
+    left = rect.left - gap;
+    xform = 'translateY(-50%) translateX(-100%)';
+
+    // If left side also doesn't fit (narrow screen), center below instead
+    if (rect.left < pad + tipW + gap) {
+      left = rect.left + rect.width / 2;
+      top = rect.bottom + gap;
+      xform = 'translateX(-50%)';
+    }
+  }
+
+  // Keep within viewport vertically
+  if (top - 100 < pad) top = pad + 100;
+  if (top + 100 > window.innerHeight - pad) top = window.innerHeight - pad - 100;
 
   factTip.style.left = left + 'px';
   factTip.style.top = top + 'px';
-  factTip.style.transform = 'translateX(-50%)';
+  factTip.style.transform = xform;
   factTip.classList.add('visible');
   clearTimeout(tooltipTimeout);
 }
